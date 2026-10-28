@@ -17,7 +17,7 @@ class HealthController:
 
     @classmethod
     async def health(cls):
-        checks = {"qdrant": "ok", "database": "ok"}
+        checks = {"qdrant": "ok", "mysql": "ok"}
 
         try:
             await run_in_threadpool(qdrant_client.get_collections)
@@ -30,8 +30,8 @@ class HealthController:
             async with engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
         except Exception:
-            logger.exception("Database health check failed")
-            checks["database"] = "error"
+            logger.exception("MySQL health check failed")
+            checks["mysql"] = "error"
 
         healthy = all(value == "ok" for value in checks.values())
         return JSONResponse(

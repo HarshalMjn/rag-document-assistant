@@ -1,4 +1,4 @@
-from pydantic import computed_field
+from pydantic import Field, computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,6 +30,27 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "gemini-embedding-001"
     EMBEDDING_DIMENSIONS: int = 768
     LLM_MODEL: str = "gemini-2.5-flash"
+    # Gemini accepts up to 100 texts per embed request.
+    EMBEDDING_BATCH_SIZE: int = Field(default=100, ge=1, le=100)
+
+    # Chunking, in characters. ~800 chars (~200 tokens) keeps one idea per chunk for precise
+    # citations; 120 chars (15%) of overlap stops a sentence from being split across chunks.
+    CHUNK_SIZE: int = Field(default=800, ge=100)
+    CHUNK_OVERLAP: int = Field(default=120, ge=0)
+
+    # Number of chunks retrieved per question.
+    TOP_K: int = Field(default=5, ge=1, le=50)
+
+    MAX_UPLOAD_MB: int = Field(default=10, ge=1)
+
+    # Latest N chat messages (user + assistant combined) sent as conversation context.
+    HISTORY_LIMIT: int = Field(default=10, ge=0)
+
+    @model_validator(mode="after")
+    def _check_chunk_overlap(self):
+        if self.CHUNK_OVERLAP >= self.CHUNK_SIZE:
+            raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_SIZE")
+        return self
 
 
 settings = Settings()

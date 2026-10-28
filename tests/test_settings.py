@@ -1,0 +1,25 @@
+import pytest
+from pydantic import ValidationError
+
+from app.config.settings import Settings
+
+
+def test_defaults():
+    s = Settings(_env_file=None)
+
+    assert s.CHUNK_SIZE == 800
+    assert s.CHUNK_OVERLAP == 120
+    assert s.TOP_K == 5
+    assert s.MAX_UPLOAD_MB == 10
+    assert s.HISTORY_LIMIT == 10
+    assert s.EMBEDDING_BATCH_SIZE == 100
+
+
+def test_overlap_must_be_smaller_than_chunk_size():
+    with pytest.raises(ValidationError, match="CHUNK_OVERLAP must be smaller"):
+        Settings(_env_file=None, CHUNK_SIZE=200, CHUNK_OVERLAP=200)
+
+
+def test_embedding_batch_size_capped_at_gemini_limit():
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, EMBEDDING_BATCH_SIZE=101)
