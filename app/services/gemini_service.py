@@ -11,6 +11,15 @@ logger = logging.getLogger(__name__)
 # The SDK expects milliseconds.
 _REQUEST_TIMEOUT_MS = 60_000
 
+# Rate limits (429) and provider hiccups (5xx) are usually brief, so retry before failing.
+# Waits grow roughly 2s, 4s, 8s (plus jitter); other errors such as a bad key fail at once.
+_RETRY_OPTIONS = types.HttpRetryOptions(
+    attempts=4,
+    initial_delay=2.0,
+    max_delay=30.0,
+    http_status_codes=[429, 500, 502, 503, 504],
+)
+
 # Gemini calls the assistant role "model".
 _ROLE_MAP = {"user": "user", "assistant": "model"}
 
@@ -34,7 +43,9 @@ class GeminiService:
         if cls._client is None:
             cls._client = genai.Client(
                 api_key=settings.GEMINI_API_KEY,
-                http_options=types.HttpOptions(timeout=_REQUEST_TIMEOUT_MS),
+                http_options=types.HttpOptions(
+                    timeout=_REQUEST_TIMEOUT_MS, retry_options=_RETRY_OPTIONS
+                ),
             )
         return cls._client
 
