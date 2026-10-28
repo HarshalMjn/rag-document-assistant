@@ -3,7 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.database import get_db
 from app.controllers.chat_controller import ChatController
-from app.schemas.chat import ChatRequest, ChatResponse, ConversationOut
+from app.schemas.chat import (
+    ChatHistoryResponse,
+    ChatRequest,
+    ChatResponse,
+    ConversationOut,
+)
 
 router = APIRouter(tags=["chat"])
 
@@ -25,3 +30,12 @@ async def chat(
     conversation_id: str, request: ChatRequest, db: AsyncSession = Depends(get_db)
 ):
     return await ChatController.chat(db, conversation_id, request)
+
+
+@router.get(
+    "/chat/{conversation_id}/history",
+    response_model=ChatHistoryResponse,
+    responses={404: {"description": "Conversation not found"}},
+)
+async def chat_history(conversation_id: str, db: AsyncSession = Depends(get_db)):
+    return await ChatController.history(db, conversation_id)

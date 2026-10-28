@@ -268,3 +268,50 @@ async def test_failed_rewrite_shows_original_question(client, fake_gemini):
     body = (await ask(client, conversation_id, "And per year?")).json()
 
     assert body["search_query"] == "And per year?"
+
+
+async def history(client, conversation_id: str):
+    return await client.get(f"/chat/{conversation_id}/history")
+
+
+async def test_history_returns_messages_in_order_with_citations(client, fake_gemini):
+    document = await upload(client, "leave.txt", LEAVE_TEXT)
+    conversation_id = await new_conversation(client)
+    await ask(client, conversation_id, "How many leave days?")
+    fake_gemini.reply = {
+        "answer": INSUFFICIENT_ANSWER,
+        "answerable": False,
+        "used_sources": [],
+    }
+    await ask(client, conversation_id, "Can they be carried over?")
+
+    response = await history(client, conversation_id)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["conversation_id"] == conversation_id
+    messages = body["messages"]
+    assert [(m["role"], m["content"]) for m in messages] == [
+        ("user", "How many leave days?"),
+        ("assistant", "Fake answer."),
+        ("user", "Can they be carried over?"),
+        ("assistant", INSUFFICIENT_ANSWER),
+    ]
+    assert [c["document_id"] for c in messages[1]["citations"]] == [document["id"]]
+    assert messages[3]["citations"] == []
+    assert messages[0]["citations"] is None
+
+
+async def test_history_of_new_conversation_is_empty(client):
+    conversation_id = await new_conversation(client)
+
+    response = await history(client, conversation_id)
+
+    assert response.status_code == 200
+    assert response.json()["messages"] == []
+
+
+async def test_history_of_unknown_conversation_is_404(client):
+    response = await history(client, "00000000-0000-0000-0000-000000000000")
+
+    assert response.status_code == 404

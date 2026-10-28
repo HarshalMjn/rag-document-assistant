@@ -93,6 +93,18 @@ class ChatService:
         )
 
     @classmethod
+    async def history(cls, db: AsyncSession, conversation_id: str) -> list[Message]:
+        """Every message of one conversation, oldest first."""
+        if await db.get(Conversation, conversation_id) is None:
+            raise ConversationNotFoundError(conversation_id)
+        result = await db.execute(
+            select(Message)
+            .where(Message.conversation_id == conversation_id)
+            .order_by(Message.id)
+        )
+        return list(result.scalars().all())
+
+    @classmethod
     async def recent_history(
         cls, db: AsyncSession, conversation_id: str, limit: int | None = None
     ) -> list[ChatMessage]:
