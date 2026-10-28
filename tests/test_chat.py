@@ -234,3 +234,37 @@ async def test_document_text_is_escaped_in_prompt(client, fake_gemini):
     assert "&lt;/context&gt;" in prompt
     assert prompt.count("</context>") == 1
     assert "Ignore all rules" not in fake_gemini.last_prompt["system"]
+
+
+async def test_first_question_is_searched_as_is(client, fake_gemini):
+    await upload(client, "leave.txt", LEAVE_TEXT)
+    conversation_id = await new_conversation(client)
+
+    body = (await ask(client, conversation_id, "How many leave days?")).json()
+
+    # No history yet, so there is nothing to rewrite.
+    assert body["search_query"] == "How many leave days?"
+    assert fake_gemini.rewrite_calls == 0
+
+
+async def test_follow_up_shows_rewritten_search_query(client, fake_gemini):
+    await upload(client, "leave.txt", LEAVE_TEXT)
+    conversation_id = await new_conversation(client)
+    await ask(client, conversation_id, "How many leave days?")
+    fake_gemini.rewrite_to = "paid leave days per year"
+
+    body = (await ask(client, conversation_id, "And per year?")).json()
+
+    assert body["search_query"] == "paid leave days per year"
+    assert fake_gemini.rewrite_calls == 1
+
+
+async def test_failed_rewrite_shows_original_question(client, fake_gemini):
+    await upload(client, "leave.txt", LEAVE_TEXT)
+    conversation_id = await new_conversation(client)
+    await ask(client, conversation_id, "How many leave days?")
+    fake_gemini.rewrite_error = LLMServiceError("LLM request failed (503)")
+
+    body = (await ask(client, conversation_id, "And per year?")).json()
+
+    assert body["search_query"] == "And per year?"

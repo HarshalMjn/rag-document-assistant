@@ -88,6 +88,7 @@ class ChatService:
             answer=answer,
             citations=citations,
             insufficient_evidence=not used,
+            search_query=search_query,
             retrieval_trace=cls._trace(retrieval, used),
         )
 

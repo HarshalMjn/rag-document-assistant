@@ -44,6 +44,9 @@ class ChatResponse(BaseModel):
     citations: list[Citation] = []
     # True when the knowledge base did not contain enough information to answer.
     insufficient_evidence: bool = False
+    # What retrieval actually searched: the question itself, or for a follow-up its
+    # standalone rewrite (e.g. "What about sick leave?" -> "sick leave days per year").
+    search_query: str
     retrieval_trace: list[RetrievalTraceItem] = []
 
 
