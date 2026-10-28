@@ -60,6 +60,7 @@ class FakeGemini:
         self.rewrite_calls = 0
         self.rewrite_error: Exception | None = None
         self.last_rewrite_prompt: str | None = None
+        self.last_rewrite_model: str | None = None
 
     async def embed_documents(self, texts: list[str]) -> list[list[float]]:
         self.embed_calls += 1
@@ -72,11 +73,14 @@ class FakeGemini:
             raise self.error
         return fake_vector(text)
 
-    async def generate(self, system_instruction, messages, response_schema=None, **_):
+    async def generate(
+        self, system_instruction, messages, response_schema=None, model=None, **_
+    ):
         if response_schema is StandaloneQuery:
             # Follow-up rewrite: counted apart from answer calls.
             self.rewrite_calls += 1
             self.last_rewrite_prompt = messages[-1]["content"]
+            self.last_rewrite_model = model
             if self.rewrite_error:
                 raise self.rewrite_error
             return json.dumps({"query": self.rewrite_to or ""})
