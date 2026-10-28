@@ -20,6 +20,25 @@ services:
       qdrant:
         condition: service_started
 
+  # React UI (Vite dev server). Calls go to /api/..., which Vite forwards to fastapi_app.
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
+    environment:
+      API_TARGET: http://fastapi_app:8000
+      VITE_POLL: "1"
+    volumes:
+      - ./frontend:/app
+      # node_modules lives in a volume, not in the OneDrive-synced project folder.
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - rag
+    depends_on:
+      - fastapi_app
+
   qdrant:
     image: qdrant/qdrant:v1.20.0
     ports:
@@ -57,4 +76,6 @@ volumes:
   qdrant_data:
     driver: local
   mysql_data:
+    driver: local
+  frontend_node_modules:
     driver: local

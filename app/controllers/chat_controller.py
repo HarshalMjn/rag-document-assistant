@@ -8,6 +8,7 @@ from app.schemas.chat import (
     ChatRequest,
     ChatResponse,
     ConversationOut,
+    ConversationSummary,
     MessageOut,
 )
 from app.services.chat_service import ChatService, ConversationNotFoundError
@@ -22,6 +23,10 @@ class ChatController:
     async def create_conversation(cls, db: AsyncSession) -> ConversationOut:
         conversation = await ChatService.create_conversation(db)
         return ConversationOut.model_validate(conversation)
+
+    @classmethod
+    async def list_conversations(cls, db: AsyncSession) -> list[ConversationSummary]:
+        return await ChatService.list_conversations(db)
 
     @classmethod
     async def chat(

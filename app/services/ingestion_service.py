@@ -1,7 +1,8 @@
 import hashlib
 import logging
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette.concurrency import run_in_threadpool
@@ -15,6 +16,10 @@ from app.services.extraction_service import ExtractionError, ExtractionService
 from app.services.gemini_service import GeminiService, GeminiServiceError
 
 logger = logging.getLogger(__name__)
+
+
+class UpdateConflictError(Exception):
+    """Another update of the same document claimed the next version number first."""
 
 
 class IngestionService:
@@ -59,25 +64,110 @@ class IngestionService:
         return await cls.get_document(db, document.id), False
 
     @classmethod
+    async def update_file(
+        cls,
+        db: AsyncSession,
+        document: Document,
+        data: bytes,
+        filename: str,
+        mime_type: str | None = None,
+    ) -> tuple[Document, bool]:
+        """Index new bytes as the next version of `document`. Returns (document, duplicate).
+
+        The old version stays live until the new one is fully indexed; only then are its
+        chunks removed. If indexing fails the document stays on the old version and the
+        new version is kept as failed, with the reason on its `error`. Bytes identical to
+        the active version are a no-op (duplicate=True).
+        """
+        content_hash = hashlib.sha256(data).hexdigest()
+        previous = document.active_version
+        active = next((v for v in document.versions if v.version == previous), None)
+        if active is not None and active.content_hash == content_hash:
+            logger.info("Update of document %s has unchanged content", document.id)
+            return document, True
+
+        # Failed versions keep their numbers, so the next one is always above all of them.
+        number = max((v.version for v in document.versions), default=0) + 1
+        version = DocumentVersion(
+            document=document,
+            version=number,
+            content_hash=content_hash,
+            status=DocumentStatus.UPLOADED,
+            mime_type=mime_type,
+            file_size=len(data),
+        )
+        db.add(version)
+        try:
+            await db.commit()
+        except IntegrityError as e:
+            # A parallel update took this number (unique per document); let the caller retry.
+            await db.rollback()
+            raise UpdateConflictError(document.id) from e
+
+        await cls.index_version(db, document, version, data, filename=filename)
+        if version.status == DocumentStatus.INDEXED and previous is not None:
+            await cls._remove_old_version(document.id, previous)
+        return await cls.get_document(db, document.id), False
+
+    @classmethod
+    async def delete_document(cls, db: AsyncSession, document: Document) -> int:
+        """Soft-delete a document and remove all its chunks. Returns the chunks removed.
+
+        MySQL is marked first: retrieval reads live documents from MySQL, so the document
+        stops being searchable at once, even if the Qdrant cleanup below fails (then 0 is
+        returned and the orphaned chunks are never retrieved).
+        """
+        document.deleted_at = func.now()
+        await db.commit()
+
+        try:
+            removed = await run_in_threadpool(qdrant_service.count_chunks, document.id)
+            await run_in_threadpool(qdrant_service.delete_document, document.id)
+        except Exception:
+            logger.exception(
+                "Could not remove chunks of deleted document %s", document.id
+            )
+            return 0
+        logger.info("Deleted document %s: %s chunks removed", document.id, removed)
+        return removed
+
+    @classmethod
+    async def _remove_old_version(cls, document_id: str, version: int) -> None:
+        """Delete a replaced version's chunks. Failure is only logged: retrieval already
+        ignores every version except the active one."""
+        try:
+            await run_in_threadpool(qdrant_service.delete_version, document_id, version)
+        except Exception:
+            logger.exception(
+                "Could not remove old chunks of document %s v%s", document_id, version
+            )
+
+    @classmethod
     async def index_version(
         cls,
         db: AsyncSession,
         document: Document,
         version: DocumentVersion,
         data: bytes,
+        filename: str | None = None,
     ) -> None:
         """Extract, chunk, embed and store one version, then make it the active version.
 
         On failure the version is marked failed and its partial chunks are removed.
-        A previously active version is left untouched, so updates (Phase 5) can reuse this.
+        A previously active version is left untouched, so a failed update keeps it live.
+        `filename` (defaults to the document's) names the new file; it replaces the
+        document's filename only once the version is indexed.
         """
+        filename = filename or document.filename
         version.status = DocumentStatus.PROCESSING
         if document.active_version is None:
             document.status = DocumentStatus.PROCESSING
         await db.commit()
 
         try:
-            chunk_count, page_count = await cls._index(document, version, data)
+            chunk_count, page_count = await cls._index(
+                document, version, data, filename
+            )
         except Exception as e:
             await cls._mark_failed(db, document, version, e)
             return
@@ -88,6 +178,7 @@ class IngestionService:
         version.page_count = page_count
         # Switched only after every chunk is stored, so retrieval never sees a half-indexed version.
         document.active_version = version.version
+        document.filename = filename
         document.status = DocumentStatus.INDEXED
         await db.commit()
         logger.info(
@@ -136,13 +227,11 @@ class IngestionService:
 
     @classmethod
     async def _index(
-        cls, document: Document, version: DocumentVersion, data: bytes
+        cls, document: Document, version: DocumentVersion, data: bytes, filename: str
     ) -> tuple[int, int]:
         """Run the pipeline. Returns (chunk_count, pages with text)."""
         # Parsing and Qdrant calls are blocking, so they run in a thread pool.
-        pages = await run_in_threadpool(
-            ExtractionService.extract, data, document.filename
-        )
+        pages = await run_in_threadpool(ExtractionService.extract, data, filename)
         chunks = ChunkingService.chunk_pages(pages)
 
         payloads = [
@@ -153,7 +242,7 @@ class IngestionService:
                     document.id, version.version, chunk.chunk_index
                 ),
                 chunk_index=chunk.chunk_index,
-                filename=document.filename,
+                filename=filename,
                 page=chunk.page,
                 content_hash=version.content_hash,
                 source_url=document.source_url,

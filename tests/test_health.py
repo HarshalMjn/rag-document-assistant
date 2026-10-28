@@ -1,14 +1,21 @@
 from fastapi.testclient import TestClient
 
+from app.config.settings import settings
 from app.main import app
 
 
-def test_test_route():
+def test_config_shows_settings_without_secrets():
     with TestClient(app) as client:
-        response = client.get("/test")
+        response = client.get("/config")
 
+    body = response.json()
     assert response.status_code == 200
-    assert response.json() == {"message": "RAG Document Assistant API is running"}
+    assert body["chunk_size"] == settings.CHUNK_SIZE
+    assert body["history_limit"] == settings.HISTORY_LIMIT
+    assert body["min_score"] == settings.MIN_SCORE
+    text = response.text.lower()
+    for secret in ("key", "password", "host"):
+        assert secret not in text
 
 
 def test_health_reports_dependencies():

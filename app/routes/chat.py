@@ -8,6 +8,7 @@ from app.schemas.chat import (
     ChatRequest,
     ChatResponse,
     ConversationOut,
+    ConversationSummary,
 )
 
 router = APIRouter(tags=["chat"])
@@ -16,6 +17,11 @@ router = APIRouter(tags=["chat"])
 @router.post("/conversations", response_model=ConversationOut, status_code=201)
 async def create_conversation(db: AsyncSession = Depends(get_db)):
     return await ChatController.create_conversation(db)
+
+
+@router.get("/conversations", response_model=list[ConversationSummary])
+async def list_conversations(db: AsyncSession = Depends(get_db)):
+    return await ChatController.list_conversations(db)
 
 
 @router.post(

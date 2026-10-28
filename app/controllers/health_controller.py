@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from app.config.database import engine
+from app.config.settings import settings
 from app.services.qdrant_service import qdrant_client
 
 logger = logging.getLogger(__name__)
@@ -12,8 +13,19 @@ logger = logging.getLogger(__name__)
 
 class HealthController:
     @classmethod
-    async def test(cls):
-        return {"message": "RAG Document Assistant API is running"}
+    def config(cls) -> dict:
+        """Non-secret settings the UI shows. Keys, hosts and passwords are never included."""
+        return {
+            "chunk_size": settings.CHUNK_SIZE,
+            "chunk_overlap": settings.CHUNK_OVERLAP,
+            "top_k": settings.TOP_K,
+            "min_score": settings.MIN_SCORE,
+            "history_limit": settings.HISTORY_LIMIT,
+            "max_upload_mb": settings.MAX_UPLOAD_MB,
+            "embedding_model": settings.EMBEDDING_MODEL,
+            "llm_model": settings.LLM_MODEL,
+            "rewrite_model": settings.REWRITE_MODEL,
+        }
 
     @classmethod
     async def health(cls):

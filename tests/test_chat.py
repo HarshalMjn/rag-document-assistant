@@ -315,3 +315,56 @@ async def test_history_of_unknown_conversation_is_404(client):
     response = await history(client, "00000000-0000-0000-0000-000000000000")
 
     assert response.status_code == 404
+
+
+async def test_trace_shows_source_and_whether_chunk_reached_the_prompt(
+    client, fake_gemini
+):
+    leave = await upload(client, "leave.txt", LEAVE_TEXT)
+    await upload(client, "travel.txt", TRAVEL_TEXT)
+    conversation_id = await new_conversation(client)
+
+    body = (await ask(client, conversation_id, "How many leave days?")).json()
+
+    by_file = {t["filename"]: t for t in body["retrieval_trace"]}
+    assert by_file["leave.txt"]["document_id"] == leave["id"]
+    assert by_file["leave.txt"]["chunk_index"] == 0
+    assert by_file["leave.txt"]["in_prompt"] is True
+    assert by_file["leave.txt"]["used_in_answer"] is True
+    # The travel chunk is retrieved but scores below MIN_SCORE, so the LLM never sees it.
+    assert by_file["travel.txt"]["in_prompt"] is False
+    assert set(body["timings"]) == {
+        "rewrite_ms",
+        "retrieval_ms",
+        "generation_ms",
+        "total_ms",
+    }
+    assert body["history_used"] == 0
+
+
+async def test_history_used_counts_the_context_messages(client, fake_gemini):
+    await upload(client, "leave.txt", LEAVE_TEXT)
+    conversation_id = await new_conversation(client)
+    await ask(client, conversation_id, "How many leave days?")
+
+    body = (await ask(client, conversation_id, "And leave per year?")).json()
+
+    assert body["history_used"] == 2
+
+
+async def test_conversations_are_listed_most_recent_first(client, fake_gemini):
+    await upload(client, "leave.txt", LEAVE_TEXT)
+    older = await new_conversation(client)
+    newer = await new_conversation(client)
+    await ask(client, older, "How many leave days?")
+
+    response = await client.get("/conversations")
+
+    assert response.status_code == 200
+    listed = {c["id"]: c for c in response.json()}
+    assert listed[older]["message_count"] == 2
+    assert listed[older]["title"] == "How many leave days?"
+    assert listed[newer]["message_count"] == 0
+    ids = [c["id"] for c in response.json()]
+    # The conversation with a new message moves above the empty one.
+    assert ids.index(older) < ids.index(newer)

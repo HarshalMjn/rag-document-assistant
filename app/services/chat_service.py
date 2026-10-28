@@ -1,13 +1,20 @@
 import logging
+import time
 
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import settings
 from app.models.conversation import Conversation
 from app.models.message import Message, MessageRole
-from app.schemas.chat import ChatResponse, Citation, RetrievalTraceItem
+from app.schemas.chat import (
+    ChatResponse,
+    ChatTimings,
+    Citation,
+    ConversationSummary,
+    RetrievalTraceItem,
+)
 from app.services.llm_service import ChatMessage, LLMService, LLMServiceError
 from app.services.prompt_service import (
     INSUFFICIENT_ANSWER,
@@ -52,16 +59,20 @@ class ChatService:
         if conversation is None:
             raise ConversationNotFoundError(conversation_id)
 
+        started = time.perf_counter()
         # Loaded before this turn is saved, so it holds only earlier messages.
         history = await cls.recent_history(db, conversation_id)
         # Retrieval always runs fresh, on a standalone version of the question.
         search_query = await cls._standalone_query(question, history)
+        rewritten = time.perf_counter()
         retrieval = await RetrievalService.retrieve(db, search_query)
+        retrieved = time.perf_counter()
         if retrieval.evidence:
             answer, used = await cls._generate(question, retrieval.evidence, history)
         else:
             # No chunk is relevant enough, so the LLM is not called at all.
             answer, used = INSUFFICIENT_ANSWER, []
+        generated = time.perf_counter()
 
         citations = [cls._citation(hit) for hit in used]
         db.add_all(
@@ -89,8 +100,44 @@ class ChatService:
             citations=citations,
             insufficient_evidence=not used,
             search_query=search_query,
+            history_used=len(history),
             retrieval_trace=cls._trace(retrieval, used),
+            timings=ChatTimings(
+                rewrite_ms=_ms(started, rewritten),
+                retrieval_ms=_ms(rewritten, retrieved),
+                generation_ms=_ms(retrieved, generated),
+                total_ms=_ms(started, generated),
+            ),
         )
+
+    @classmethod
+    async def list_conversations(cls, db: AsyncSession) -> list[ConversationSummary]:
+        """Every conversation with its message count, most recently active first."""
+        last_activity = func.coalesce(
+            func.max(Message.created_at), Conversation.created_at
+        )
+        result = await db.execute(
+            select(Conversation, func.count(Message.id), last_activity)
+            .outerjoin(Message, Message.conversation_id == Conversation.id)
+            .group_by(Conversation.id)
+            # Timestamps have 1-second precision; within a second the newest message id
+            # decides, and empty conversations (NULL) sort after ones with messages.
+            .order_by(
+                last_activity.desc(),
+                func.max(Message.id).desc(),
+                Conversation.created_at.desc(),
+            )
+        )
+        return [
+            ConversationSummary(
+                id=conversation.id,
+                title=conversation.title,
+                created_at=conversation.created_at,
+                message_count=count,
+                last_activity=activity,
+            )
+            for conversation, count, activity in result.all()
+        ]
 
     @classmethod
     async def history(cls, db: AsyncSession, conversation_id: str) -> list[Message]:
@@ -211,13 +258,22 @@ class ChatService:
         retrieval: RetrievalResult, used: list[SearchHit]
     ) -> list[RetrievalTraceItem]:
         used_ids = {hit.payload.chunk_id for hit in used}
+        evidence_ids = {hit.payload.chunk_id for hit in retrieval.evidence}
         return [
             RetrievalTraceItem(
                 chunk_id=hit.payload.chunk_id,
                 document_id=hit.payload.document_id,
                 version=hit.payload.version,
+                filename=hit.payload.filename,
+                page=hit.payload.page,
+                chunk_index=hit.payload.chunk_index,
                 score=hit.score,
+                in_prompt=hit.payload.chunk_id in evidence_ids,
                 used_in_answer=hit.payload.chunk_id in used_ids,
             )
             for hit in retrieval.hits
         ]
+
+
+def _ms(start: float, end: float) -> int:
+    return round((end - start) * 1000)

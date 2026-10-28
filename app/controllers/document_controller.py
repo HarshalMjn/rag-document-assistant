@@ -9,9 +9,13 @@ from sqlalchemy.orm import selectinload
 
 from app.config.settings import settings
 from app.models.document import Document, DocumentStatus
-from app.schemas.document import DocumentOut, DocumentUploadResponse
+from app.schemas.document import (
+    DocumentDeleteResponse,
+    DocumentOut,
+    DocumentUploadResponse,
+)
 from app.services.extraction_service import SUPPORTED_EXTENSIONS
-from app.services.ingestion_service import IngestionService
+from app.services.ingestion_service import IngestionService, UpdateConflictError
 
 logger = logging.getLogger(__name__)
 
@@ -19,20 +23,51 @@ logger = logging.getLogger(__name__)
 class DocumentController:
     @classmethod
     async def upload(cls, db: AsyncSession, file: UploadFile):
-        # Browsers may send a full client path; keep only the file name.
-        filename = PurePath((file.filename or "").replace("\\", "/")).name[:255]
+        filename = cls._clean_filename(file)
         data = await cls._read_validated(file, filename)
         document, duplicate = await IngestionService.ingest_file(
             db, data, filename, file.content_type
         )
+        return cls._upload_response(document, duplicate, success_status=201)
 
+    @classmethod
+    async def update(cls, db: AsyncSession, document_id: str, file: UploadFile):
+        document = await IngestionService.get_document(db, document_id)
+        if document is None:
+            raise HTTPException(status_code=404, detail="Document not found")
+        filename = cls._clean_filename(file)
+        data = await cls._read_validated(file, filename)
+        try:
+            document, duplicate = await IngestionService.update_file(
+                db, document, data, filename, file.content_type
+            )
+        except UpdateConflictError as e:
+            raise HTTPException(
+                status_code=409,
+                detail="Another update of this document is in progress; try again",
+            ) from e
+        return cls._upload_response(document, duplicate, success_status=200)
+
+    @staticmethod
+    def _clean_filename(file: UploadFile) -> str:
+        # Browsers may send a full client path; keep only the file name.
+        return PurePath((file.filename or "").replace("\\", "/")).name[:255]
+
+    @staticmethod
+    def _upload_response(
+        document: Document, duplicate: bool, success_status: int
+    ) -> JSONResponse:
+        """200 for a duplicate, `success_status` once indexed, 422 if indexing failed."""
         body = DocumentUploadResponse(
             document=DocumentOut.model_validate(document), duplicate=duplicate
         )
+        # An update can fail while the document stays indexed on its old version, so the
+        # newest version's status decides, not the document's.
+        latest = document.versions[-1]
         if duplicate:
             status_code = 200
-        elif document.status == DocumentStatus.INDEXED:
-            status_code = 201
+        elif latest.status == DocumentStatus.INDEXED:
+            status_code = success_status
         else:
             # Indexing failed: the body still carries the document id and the reason.
             status_code = 422
@@ -84,3 +119,13 @@ class DocumentController:
         if document is None:
             raise HTTPException(status_code=404, detail="Document not found")
         return DocumentOut.model_validate(document)
+
+    @classmethod
+    async def delete(cls, db: AsyncSession, document_id: str) -> DocumentDeleteResponse:
+        document = await IngestionService.get_document(db, document_id)
+        if document is None:
+            raise HTTPException(status_code=404, detail="Document not found")
+        removed = await IngestionService.delete_document(db, document)
+        return DocumentDeleteResponse(
+            id=document_id, deleted=True, chunks_removed=removed
+        )
