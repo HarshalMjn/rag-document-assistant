@@ -6,7 +6,18 @@ from app.models.message import MessageRole
 
 
 class ChatRequest(BaseModel):
+    # Stripped first, so a question of only spaces is rejected too.
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     question: str = Field(min_length=1, max_length=4000)
+
+
+class ConversationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    title: str | None = None
+    created_at: datetime
 
 
 class Citation(BaseModel):

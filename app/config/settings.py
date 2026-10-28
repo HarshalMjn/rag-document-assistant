@@ -40,6 +40,10 @@ class Settings(BaseSettings):
 
     # Number of chunks retrieved per question.
     TOP_K: int = Field(default=5, ge=1, le=50)
+    # Minimum cosine similarity for a chunk to count as evidence. If no chunk reaches it, the
+    # assistant says it lacks information instead of calling the LLM. 0.65 sits between correct
+    # (~0.68-0.70) and unrelated (~0.54-0.62) matches on the sample handbook; tune via evaluation.
+    MIN_SCORE: float = Field(default=0.65, ge=0.0, le=1.0)
 
     MAX_UPLOAD_MB: int = Field(default=10, ge=1)
 

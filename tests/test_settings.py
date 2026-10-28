@@ -10,6 +10,7 @@ def test_defaults():
     assert s.CHUNK_SIZE == 800
     assert s.CHUNK_OVERLAP == 120
     assert s.TOP_K == 5
+    assert s.MIN_SCORE == 0.65
     assert s.MAX_UPLOAD_MB == 10
     assert s.HISTORY_LIMIT == 10
     assert s.EMBEDDING_BATCH_SIZE == 100
@@ -23,3 +24,9 @@ def test_overlap_must_be_smaller_than_chunk_size():
 def test_embedding_batch_size_capped_at_gemini_limit():
     with pytest.raises(ValidationError):
         Settings(_env_file=None, EMBEDDING_BATCH_SIZE=101)
+
+
+@pytest.mark.parametrize("value", [-0.1, 1.5])
+def test_min_score_must_be_between_0_and_1(value):
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, MIN_SCORE=value)

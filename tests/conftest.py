@@ -1,4 +1,4 @@
-import hashlib
+import json
 
 import httpx
 import pymupdf
@@ -8,17 +8,27 @@ from sqlalchemy import delete
 from app.config.database import SessionLocal, engine
 from app.config.settings import settings
 from app.main import app
-from app.models import Document
+from app.models import Conversation, Document
 from app.services import qdrant_service
 from app.services.gemini_service import GeminiService
 
 TEST_COLLECTION = "documents_test"
 
 
+# Topic words the fake embedding understands. Texts sharing a topic score ~0.99 cosine
+# similarity; texts with no topic in common score ~0, so tests control what is retrieved.
+TOPICS = ["leave", "travel", "remote", "salary", "parking"]
+
+
 def fake_vector(text: str) -> list[float]:
-    """Deterministic 768-dim vector from the text, so tests need no API key and cost nothing."""
-    digest = hashlib.sha256(text.encode()).digest()
-    return [digest[i % len(digest)] / 255 for i in range(settings.EMBEDDING_DIMENSIONS)]
+    """Deterministic 768-dim vector, so tests need no API key and cost nothing."""
+    words = text.lower().replace(".", " ").replace("?", " ").split()
+    vector = [0.0] * settings.EMBEDDING_DIMENSIONS
+    for i, topic in enumerate(TOPICS):
+        vector[i] = float(words.count(topic))
+    # Small constant so a text with no topic words is not an all-zero vector.
+    vector[-1] = 0.01
+    return vector
 
 
 def make_pdf(pages: list[str]) -> bytes:
@@ -34,7 +44,15 @@ def make_pdf(pages: list[str]) -> bytes:
 class FakeGemini:
     def __init__(self):
         self.embed_calls = 0
+        self.generate_calls = 0
         self.error: Exception | None = None
+        # What generate() returns; tests override it to simulate other LLM behaviour.
+        self.reply = {
+            "answer": "Fake answer.",
+            "answerable": True,
+            "used_sources": ["S1"],
+        }
+        self.last_prompt: dict | None = None
 
     async def embed_documents(self, texts: list[str]) -> list[list[float]]:
         self.embed_calls += 1
@@ -42,11 +60,24 @@ class FakeGemini:
             raise self.error
         return [fake_vector(t) for t in texts]
 
+    async def embed_query(self, text: str) -> list[float]:
+        if self.error:
+            raise self.error
+        return fake_vector(text)
+
+    async def generate(self, system_instruction, messages, response_schema=None, **_):
+        self.generate_calls += 1
+        self.last_prompt = {"system": system_instruction, "messages": messages}
+        if self.error:
+            raise self.error
+        return self.reply if isinstance(self.reply, str) else json.dumps(self.reply)
+
 
 @pytest.fixture
 def fake_gemini(monkeypatch) -> FakeGemini:
     fake = FakeGemini()
-    monkeypatch.setattr(GeminiService, "embed_documents", fake.embed_documents)
+    for name in ("embed_documents", "embed_query", "generate"):
+        monkeypatch.setattr(GeminiService, name, getattr(fake, name))
     return fake
 
 
@@ -62,20 +93,24 @@ def test_collection(monkeypatch):
 
 @pytest.fixture
 async def client(fake_gemini, test_collection):
-    """HTTP client for the app. Deletes every document the test created afterwards."""
+    """HTTP client for the app. Deletes every document and conversation the test created."""
     # Pooled connections belong to the event loop that opened them; each test gets a new loop.
     await engine.dispose()
-    created: list[str] = []
+    documents: list[str] = []
+    conversations: list[str] = []
 
     async def capture(response: httpx.Response):
-        if (
-            response.request.method == "POST"
-            and response.request.url.path == "/documents"
-        ):
+        if response.request.method != "POST" or response.status_code >= 500:
+            return
+        path = response.request.url.path
+        if path == "/documents":
             await response.aread()
             document = response.json().get("document") or {}
             if "id" in document:
-                created.append(document["id"])
+                documents.append(document["id"])
+        elif path == "/conversations":
+            await response.aread()
+            conversations.append(response.json()["id"])
 
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(
@@ -86,6 +121,8 @@ async def client(fake_gemini, test_collection):
         yield http
 
     async with SessionLocal() as db:
-        await db.execute(delete(Document).where(Document.id.in_(created)))
+        await db.execute(delete(Document).where(Document.id.in_(documents)))
+        # Messages go with their conversation (ON DELETE CASCADE).
+        await db.execute(delete(Conversation).where(Conversation.id.in_(conversations)))
         await db.commit()
     await engine.dispose()

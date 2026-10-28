@@ -1,5 +1,6 @@
 import threading
 import uuid
+from dataclasses import dataclass
 
 from qdrant_client import QdrantClient, models
 
@@ -134,3 +135,43 @@ def delete_document(document_id: str) -> None:
         points_selector=models.FilterSelector(filter=_document_filter(document_id)),
         wait=True,
     )
+
+
+@dataclass(frozen=True)
+class SearchHit:
+    payload: ChunkPayload
+    score: float
+
+
+def search(
+    vector: list[float],
+    active_versions: list[tuple[str, int]],
+    top_k: int,
+) -> list[SearchHit]:
+    """Return the `top_k` most similar chunks, best first.
+
+    Only chunks whose (document_id, version) is in `active_versions` can match, so retired
+    versions and deleted documents are never returned, even if their points still exist.
+    No score cut-off is applied here; the caller decides what counts as evidence.
+    """
+    if not active_versions:
+        return []
+
+    # Match any one of the live (document_id, version) pairs.
+    version_filter = models.Filter(
+        should=[
+            _document_filter(document_id, version)
+            for document_id, version in active_versions
+        ]
+    )
+    response = qdrant_client.query_points(
+        collection_name=settings.QDRANT_COLLECTION,
+        query=vector,
+        query_filter=version_filter,
+        limit=top_k,
+        with_payload=True,
+    )
+    return [
+        SearchHit(payload=ChunkPayload.model_validate(point.payload), score=point.score)
+        for point in response.points
+    ]

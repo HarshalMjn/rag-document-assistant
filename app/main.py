@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.concurrency import run_in_threadpool
 
 from app.config.database import engine
-from app.routes import documents, health
+from app.routes import chat, documents, health
 from app.services.qdrant_service import ensure_collection
 
 logger = logging.getLogger(__name__)
@@ -30,3 +30,4 @@ app = FastAPI(
 
 app.include_router(health.router)
 app.include_router(documents.router)
+app.include_router(chat.router)
