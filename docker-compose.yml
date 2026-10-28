@@ -10,6 +10,8 @@ services:
       - ./alembic:/code/alembic
       - ./alembic.ini:/code/alembic.ini
       - ./tests:/code/tests
+      - ./eval:/code/eval
+      - ./samples:/code/samples
     ports:
       - "8000:8000"
     networks:

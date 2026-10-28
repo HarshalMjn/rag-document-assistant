@@ -1,0 +1,2984 @@
+{
+  "min_score": 0.55,
+  "llm_model": "openai/gpt-oss-120b",
+  "rewrite_model": "openai/gpt-oss-20b",
+  "embedding_model": "gemini-embedding-001",
+  "summaries": [
+    {
+      "config": "A",
+      "chunk_size": 800,
+      "chunk_overlap": 120,
+      "chunks": 7,
+      "questions": 22,
+      "answerable": 19,
+      "recall_at_k": {
+        "1": 0.895,
+        "3": 1.0,
+        "5": 1.0
+      },
+      "mrr": 0.974,
+      "evidence_reaches_llm": 1.0,
+      "evidence_score_mean": 0.662,
+      "evidence_score_min": 0.565,
+      "unanswerable_top_score_max": 0.66,
+      "answer_accuracy": 0.909,
+      "answerable_accuracy": 0.895,
+      "unanswerable_correct": "3/3",
+      "citation_correct": 1.0,
+      "citation_precision": 1.0,
+      "latency_ms": {
+        "rewrite": {
+          "mean": 147,
+          "max": 2358
+        },
+        "retrieval": {
+          "mean": 1113,
+          "max": 3334
+        },
+        "generation": {
+          "mean": 5443,
+          "max": 48249
+        },
+        "total": {
+          "mean": 6703,
+          "max": 50139
+        }
+      },
+      "ingestion": {
+        "chars": 4242,
+        "embedding_tokens_est": 1060,
+        "per_file": {
+          "employee_handbook.pdf": {
+            "chunks": 3,
+            "extract_chunk_ms": 25,
+            "embed_ms": 1347,
+            "store_ms": 56
+          },
+          "it_security_policy.txt": {
+            "chunks": 2,
+            "extract_chunk_ms": 0,
+            "embed_ms": 588,
+            "store_ms": 13
+          },
+          "benefits_guide.txt": {
+            "chunks": 2,
+            "extract_chunk_ms": 0,
+            "embed_ms": 536,
+            "store_ms": 14
+          }
+        }
+      },
+      "llm_input_tokens_est_mean": 1059,
+      "llm_output_tokens_est_mean": 16
+    },
+    {
+      "config": "B",
+      "chunk_size": 400,
+      "chunk_overlap": 60,
+      "chunks": 15,
+      "questions": 22,
+      "answerable": 19,
+      "recall_at_k": {
+        "1": 0.789,
+        "3": 0.947,
+        "5": 1.0
+      },
+      "mrr": 0.912,
+      "evidence_reaches_llm": 1.0,
+      "evidence_score_mean": 0.694,
+      "evidence_score_min": 0.593,
+      "unanswerable_top_score_max": 0.686,
+      "answer_accuracy": 0.909,
+      "answerable_accuracy": 0.895,
+      "unanswerable_correct": "3/3",
+      "citation_correct": 1.0,
+      "citation_precision": 0.974,
+      "latency_ms": {
+        "rewrite": {
+          "mean": 149,
+          "max": 1996
+        },
+        "retrieval": {
+          "mean": 1162,
+          "max": 2023
+        },
+        "generation": {
+          "mean": 3374,
+          "max": 7724
+        },
+        "total": {
+          "mean": 4685,
+          "max": 8842
+        }
+      },
+      "ingestion": {
+        "chars": 4276,
+        "embedding_tokens_est": 1069,
+        "per_file": {
+          "employee_handbook.pdf": {
+            "chunks": 6,
+            "extract_chunk_ms": 99,
+            "embed_ms": 1328,
+            "store_ms": 29
+          },
+          "it_security_policy.txt": {
+            "chunks": 5,
+            "extract_chunk_ms": 1,
+            "embed_ms": 974,
+            "store_ms": 16
+          },
+          "benefits_guide.txt": {
+            "chunks": 4,
+            "extract_chunk_ms": 0,
+            "embed_ms": 906,
+            "store_ms": 19
+          }
+        }
+      },
+      "llm_input_tokens_est_mean": 754,
+      "llm_output_tokens_est_mean": 18
+    }
+  ],
+  "runs": {
+    "A": [
+      {
+        "id": "q01",
+        "question": "How many days of paid annual leave does a full-time employee get?",
+        "search_query": "How many days of paid annual leave does a full-time employee get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.7011,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6406,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6086,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6027,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5786,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "15 days",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 595,
+          "generation": 1838,
+          "total": 2433
+        },
+        "llm_input_tokens_est": 1129,
+        "llm_output_tokens_est": 2,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q02",
+        "question": "How many unused leave days can be carried over, and when do they expire?",
+        "search_query": "How many unused leave days can be carried over, and when do they expire?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6597,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.594,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5871,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5843,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5641,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Up to 5 unused leave days can be carried over, and they must be used before March\u202f31 of the following year or they expire.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1195,
+          "generation": 810,
+          "total": 2006
+        },
+        "llm_input_tokens_est": 1131,
+        "llm_output_tokens_est": 30,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q03",
+        "question": "Who has to approve a leave request of more than 5 consecutive days?",
+        "search_query": "Who has to approve a leave request of more than 5 consecutive days?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6601,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6449,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.6298,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5954,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5781,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "The department head must approve leave requests that are longer than 5 consecutive days.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 531,
+          "generation": 895,
+          "total": 1427
+        },
+        "llm_input_tokens_est": 1130,
+        "llm_output_tokens_est": 22,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q04",
+        "question": "How many days of paid sick leave do employees get?",
+        "search_query": "How many days of paid sick leave do employees get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6589,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6159,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5887,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5872,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5734,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Employees receive 10 days of paid sick leave per year.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 567,
+          "generation": 679,
+          "total": 1246
+        },
+        "llm_input_tokens_est": 1125,
+        "llm_output_tokens_est": 14,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q05",
+        "question": "Do I need a certificate for those?",
+        "search_query": "Do I need a certificate for the paid sick leave days?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6238,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5946,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5842,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.572,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5704,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Yes. A medical certificate is required for sick leave longer than two consecutive days.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 880,
+          "retrieval": 733,
+          "generation": 1581,
+          "total": 3193
+        },
+        "llm_input_tokens_est": 1147,
+        "llm_output_tokens_est": 22,
+        "answer_correct": false,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q06",
+        "question": "How many days per week can I work from home?",
+        "search_query": "How many days per week can I work from home?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.7121,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6072,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5986,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5942,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5901,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "2 days per week",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1095,
+          "generation": 1018,
+          "total": 2113
+        },
+        "llm_input_tokens_est": 1157,
+        "llm_output_tokens_est": 4,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q07",
+        "question": "What allowance is there for home office equipment?",
+        "search_query": "What allowance is there for home office equipment?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.6825,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6251,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.611,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.594,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.586,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "The company provides a one\u2011time home office allowance of $300 for equipment such as a monitor, keyboard, or chair.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 989,
+          "generation": 1401,
+          "total": 2391
+        },
+        "llm_input_tokens_est": 1145,
+        "llm_output_tokens_est": 28,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q08",
+        "question": "When must remote employees be reachable on the company chat?",
+        "search_query": "When must remote employees be reachable on the company chat?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.6917,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6186,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6022,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.581,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5794,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Remote employees must be reachable on the company chat between 10:00 and 16:00 local time.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 965,
+          "generation": 2225,
+          "total": 3189
+        },
+        "llm_input_tokens_est": 1169,
+        "llm_output_tokens_est": 22,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q09",
+        "question": "When am I allowed to book business class?",
+        "search_query": "When am I allowed to book business class?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6451,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5634,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5469,
+            "in_prompt": false
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5328,
+            "in_prompt": false
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5291,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "You may book business class for flights that are six hours or longer.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1028,
+          "generation": 1280,
+          "total": 2308
+        },
+        "llm_input_tokens_est": 646,
+        "llm_output_tokens_est": 17,
+        "answer_correct": false,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q10",
+        "question": "What is the daily meal allowance on a business trip?",
+        "search_query": "What is the daily meal allowance on a business trip?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.7365,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6157,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5886,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5874,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5671,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "$50",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1020,
+          "generation": 13670,
+          "total": 14690
+        },
+        "llm_input_tokens_est": 1126,
+        "llm_output_tokens_est": 1,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q11",
+        "question": "What is the deadline for submitting expense reports?",
+        "search_query": "What is the deadline for submitting expense reports?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6798,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5777,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5731,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5465,
+            "in_prompt": false
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5389,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Expense reports must be submitted within 15 days after the trip ends.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 3334,
+          "generation": 1211,
+          "total": 4545
+        },
+        "llm_input_tokens_est": 778,
+        "llm_output_tokens_est": 17,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q12",
+        "question": "What is the minimum password length?",
+        "search_query": "What is the minimum password length?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6654,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6114,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5346,
+            "in_prompt": false
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5334,
+            "in_prompt": false
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5263,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "The minimum password length is 14 characters.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "it_security_policy.txt",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1211,
+          "generation": 2490,
+          "total": 3701
+        },
+        "llm_input_tokens_est": 733,
+        "llm_output_tokens_est": 11,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q13",
+        "question": "How soon must a lost laptop be reported?",
+        "search_query": "How soon must a lost laptop be reported?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6281,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6219,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5954,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5644,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5521,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          2
+        ],
+        "answer": "It must be reported within 1 hour.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "it_security_policy.txt",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 715,
+          "generation": 10294,
+          "total": 11010
+        },
+        "llm_input_tokens_est": 1175,
+        "llm_output_tokens_est": 8,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q14",
+        "question": "When do I have to use the VPN?",
+        "search_query": "When do I have to use the VPN?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.654,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.612,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5739,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5682,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5345,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "You must use the VPN whenever you work from a public network, such as a caf\u00e9, hotel, or airport Wi\u2011Fi.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "it_security_policy.txt",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1890,
+          "generation": 48249,
+          "total": 50139
+        },
+        "llm_input_tokens_est": 992,
+        "llm_output_tokens_est": 26,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q15",
+        "question": "How many weeks of parental leave does the primary caregiver get?",
+        "search_query": "How many weeks of parental leave does the primary caregiver get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.678,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.595,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5907,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5698,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5526,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "16 weeks",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1353,
+          "generation": 563,
+          "total": 1916
+        },
+        "llm_input_tokens_est": 1129,
+        "llm_output_tokens_est": 2,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q16",
+        "question": "And the secondary caregiver?",
+        "search_query": "How many weeks of parental leave does the secondary caregiver get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6575,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5955,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5817,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5642,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5531,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "4 weeks",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 2358,
+          "retrieval": 788,
+          "generation": 991,
+          "total": 4137
+        },
+        "llm_input_tokens_est": 1138,
+        "llm_output_tokens_est": 2,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q17",
+        "question": "How much is the yearly learning budget?",
+        "search_query": "How much is the yearly learning budget?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6951,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6156,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6133,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5857,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5701,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "$1,000 per calendar year",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 935,
+          "generation": 490,
+          "total": 1425
+        },
+        "llm_input_tokens_est": 1122,
+        "llm_output_tokens_est": 6,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q18",
+        "question": "What money can I get for my home office and for my own learning?",
+        "search_query": "What money can I get for my home office and for my own learning?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6749,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.6238,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6111,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6071,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5662,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          2,
+          1
+        ],
+        "answer": "You can receive a one\u2011time home office allowance of $300 (with receipt submission within 30\u202fdays) and an annual learning budget of $1,000 for courses, books or conferences.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 1
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 883,
+          "generation": 1401,
+          "total": 2284
+        },
+        "llm_input_tokens_est": 1129,
+        "llm_output_tokens_est": 43,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q19",
+        "question": "Which of my unused days or budgets carry over to next year?",
+        "search_query": "Which of my unused days or budgets carry over to next year?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6103,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5804,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5648,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5637,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5432,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [
+          3,
+          1
+        ],
+        "answer": "You can carry over up to 5 unused annual leave days to the next year. Unused learning budget does not carry over.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 1
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 865,
+          "generation": 6633,
+          "total": 7497
+        },
+        "llm_input_tokens_est": 997,
+        "llm_output_tokens_est": 28,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q20",
+        "question": "What is the parental leave bonus amount?",
+        "search_query": "What is the parental leave bonus amount?",
+        "answerable": false,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6603,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6431,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5752,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5662,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5549,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [],
+        "answer": "I don't have enough information in the uploaded documents to answer that.",
+        "insufficient": true,
+        "cited": [],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1576,
+          "generation": 5337,
+          "total": 6913
+        },
+        "llm_input_tokens_est": 1123,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true
+      },
+      {
+        "id": "q21",
+        "question": "What is the vesting schedule for employee stock options?",
+        "search_query": "What is the vesting schedule for employee stock options?",
+        "answerable": false,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5918,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5631,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.5579,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.5548,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.538,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [],
+        "answer": "I don't have enough information in the uploaded documents to answer that.",
+        "insufficient": true,
+        "cited": [],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1438,
+          "generation": 4658,
+          "total": 6096
+        },
+        "llm_input_tokens_est": 946,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true
+      },
+      {
+        "id": "q22",
+        "question": "Can I bring my dog to the office?",
+        "search_query": "Can I bring my dog to the office?",
+        "answerable": false,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 1,
+            "score": 0.6441,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6284,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 2,
+            "score": 0.6187,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6043,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5954,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [],
+        "answer": "I don't have enough information in the uploaded documents to answer that.",
+        "insufficient": true,
+        "cited": [],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 777,
+          "generation": 12038,
+          "total": 12815
+        },
+        "llm_input_tokens_est": 1121,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true
+      }
+    ],
+    "B": [
+      {
+        "id": "q01",
+        "question": "How many days of paid annual leave does a full-time employee get?",
+        "search_query": "How many days of paid annual leave does a full-time employee get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.7053,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.6861,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6731,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.5989,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.5976,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "15 days",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 642,
+          "generation": 983,
+          "total": 1625
+        },
+        "llm_input_tokens_est": 831,
+        "llm_output_tokens_est": 2,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q02",
+        "question": "How many unused leave days can be carried over, and when do they expire?",
+        "search_query": "How many unused leave days can be carried over, and when do they expire?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.7001,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6793,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6171,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6102,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6057,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          2
+        ],
+        "answer": "Up to 5 unused leave days may be carried over, and they must be used before March\u202f31 of the following year or they expire.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 664,
+          "generation": 1946,
+          "total": 2611
+        },
+        "llm_input_tokens_est": 754,
+        "llm_output_tokens_est": 30,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 0.5
+      },
+      {
+        "id": "q03",
+        "question": "Who has to approve a leave request of more than 5 consecutive days?",
+        "search_query": "Who has to approve a leave request of more than 5 consecutive days?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.6947,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6478,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6405,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.6363,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6248,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "The department head must approve a leave request of more than 5 consecutive days.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 755,
+          "generation": 4289,
+          "total": 5045
+        },
+        "llm_input_tokens_est": 816,
+        "llm_output_tokens_est": 20,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q04",
+        "question": "How many days of paid sick leave do employees get?",
+        "search_query": "How many days of paid sick leave do employees get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.6985,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.6289,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6223,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6024,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5882,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Employees receive 10 days of paid sick leave per year.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 848,
+          "generation": 3248,
+          "total": 4096
+        },
+        "llm_input_tokens_est": 770,
+        "llm_output_tokens_est": 14,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q05",
+        "question": "Do I need a certificate for those?",
+        "search_query": "Do I need a certificate for the paid sick leave days?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.6928,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6148,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5819,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.5812,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.5803,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Yes, a medical certificate is required if the sick leave lasts more than two consecutive days.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 1996,
+          "retrieval": 2023,
+          "generation": 958,
+          "total": 4977
+        },
+        "llm_input_tokens_est": 762,
+        "llm_output_tokens_est": 24,
+        "answer_correct": false,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q06",
+        "question": "How many days per week can I work from home?",
+        "search_query": "How many days per week can I work from home?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.7116,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6205,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6092,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 4,
+            "score": 0.6091,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.6087,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "2 days per week",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1021,
+          "generation": 3024,
+          "total": 4045
+        },
+        "llm_input_tokens_est": 819,
+        "llm_output_tokens_est": 4,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q07",
+        "question": "What allowance is there for home office equipment?",
+        "search_query": "What allowance is there for home office equipment?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.7047,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6798,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.6724,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 4,
+            "score": 0.6288,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6222,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          3
+        ],
+        "answer": "The company provides a one\u2011time home office allowance of $300 for equipment.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 898,
+          "generation": 3130,
+          "total": 4029
+        },
+        "llm_input_tokens_est": 672,
+        "llm_output_tokens_est": 19,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q08",
+        "question": "When must remote employees be reachable on the company chat?",
+        "search_query": "When must remote employees be reachable on the company chat?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.6951,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6265,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 4,
+            "score": 0.6162,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6118,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5987,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "Remote employees must be reachable on the company chat between 10:00 and 16:00 local time.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 927,
+          "generation": 3530,
+          "total": 4457
+        },
+        "llm_input_tokens_est": 803,
+        "llm_output_tokens_est": 22,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q09",
+        "question": "When am I allowed to book business class?",
+        "search_query": "When am I allowed to book business class?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6481,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.5924,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.5884,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.5479,
+            "in_prompt": false
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.5446,
+            "in_prompt": false
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "You may book business class for flights that are six hours or longer.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 4
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1756,
+          "generation": 1002,
+          "total": 2758
+        },
+        "llm_input_tokens_est": 563,
+        "llm_output_tokens_est": 17,
+        "answer_correct": false,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q10",
+        "question": "What is the daily meal allowance on a business trip?",
+        "search_query": "What is the daily meal allowance on a business trip?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.7323,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6959,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6376,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.5979,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5949,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "$50",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 4
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1557,
+          "generation": 5110,
+          "total": 6667
+        },
+        "llm_input_tokens_est": 695,
+        "llm_output_tokens_est": 1,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q11",
+        "question": "What is the deadline for submitting expense reports?",
+        "search_query": "What is the deadline for submitting expense reports?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.695,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6658,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.6366,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.5974,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.5958,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          2
+        ],
+        "answer": "Expense reports must be submitted within 15 days after the trip ends.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 4
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1645,
+          "generation": 7197,
+          "total": 8842
+        },
+        "llm_input_tokens_est": 715,
+        "llm_output_tokens_est": 17,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q12",
+        "question": "What is the minimum password length?",
+        "search_query": "What is the minimum password length?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6814,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.6062,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6031,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 4,
+            "score": 0.6001,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.582,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "14 characters",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "it_security_policy.txt",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1944,
+          "generation": 679,
+          "total": 2624
+        },
+        "llm_input_tokens_est": 775,
+        "llm_output_tokens_est": 3,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q13",
+        "question": "How soon must a lost laptop be reported?",
+        "search_query": "How soon must a lost laptop be reported?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.725,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 4,
+            "score": 0.6505,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.6437,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6094,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6093,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "It must be reported within 1 hour.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "it_security_policy.txt",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 707,
+          "generation": 3187,
+          "total": 3894
+        },
+        "llm_input_tokens_est": 700,
+        "llm_output_tokens_est": 8,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q14",
+        "question": "When do I have to use the VPN?",
+        "search_query": "When do I have to use the VPN?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.7033,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6224,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 4,
+            "score": 0.6142,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6093,
+            "in_prompt": true
+          },
+          {
+            "file": "it_security_policy.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.5896,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "You must use the company VPN whenever you work from a public network, such as a caf\u00e9, hotel, or airport Wi\u2011Fi.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "it_security_policy.txt",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 928,
+          "generation": 3156,
+          "total": 4084
+        },
+        "llm_input_tokens_est": 773,
+        "llm_output_tokens_est": 28,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q15",
+        "question": "How many weeks of parental leave does the primary caregiver get?",
+        "search_query": "How many weeks of parental leave does the primary caregiver get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.7636,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.6133,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5877,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.5812,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.5797,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "16 weeks",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 571,
+          "generation": 4970,
+          "total": 5541
+        },
+        "llm_input_tokens_est": 849,
+        "llm_output_tokens_est": 2,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q16",
+        "question": "And the secondary caregiver?",
+        "search_query": "How many weeks of parental leave does the secondary caregiver get?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.7512,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.5948,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.5872,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.5796,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.5735,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "The secondary caregiver receives 4 weeks of fully paid parental leave.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 1
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 1277,
+          "retrieval": 1062,
+          "generation": 2624,
+          "total": 4964
+        },
+        "llm_input_tokens_est": 852,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q17",
+        "question": "How much is the yearly learning budget?",
+        "search_query": "How much is the yearly learning budget?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.7885,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6631,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 0,
+            "score": 0.6171,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6132,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.5989,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          1
+        ],
+        "answer": "$1,000 per calendar year",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 778,
+          "generation": 3720,
+          "total": 4498
+        },
+        "llm_input_tokens_est": 692,
+        "llm_output_tokens_est": 6,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q18",
+        "question": "What money can I get for my home office and for my own learning?",
+        "search_query": "What money can I get for my home office and for my own learning?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.7111,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.6715,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6532,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.6271,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.6094,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          4,
+          1
+        ],
+        "answer": "You can receive a one\u2011time home office allowance of $300 for equipment, and you have an annual learning budget of $1,000 for courses, books and conferences.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 2
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 2
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 538,
+          "generation": 7724,
+          "total": 8263
+        },
+        "llm_input_tokens_est": 714,
+        "llm_output_tokens_est": 39,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q19",
+        "question": "Which of my unused days or budgets carry over to next year?",
+        "search_query": "Which of my unused days or budgets carry over to next year?",
+        "answerable": true,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6324,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6142,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.604,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 0,
+            "score": 0.5933,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.5789,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [
+          4,
+          1
+        ],
+        "answer": "Unused annual leave days can be carried over\u2014up to 5 days may be transferred to the next year, but they must be used before March\u202f31 or they expire. Your learning budget does not carry over; any unused amount is lost at year\u2011end.",
+        "insufficient": false,
+        "cited": [
+          {
+            "file": "benefits_guide.txt",
+            "chunk_index": 2
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "chunk_index": 0
+          }
+        ],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1758,
+          "generation": 3457,
+          "total": 5215
+        },
+        "llm_input_tokens_est": 776,
+        "llm_output_tokens_est": 57,
+        "answer_correct": true,
+        "citation_correct": true,
+        "citation_precision": 1.0
+      },
+      {
+        "id": "q20",
+        "question": "What is the parental leave bonus amount?",
+        "search_query": "What is the parental leave bonus amount?",
+        "answerable": false,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 1,
+            "score": 0.6861,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.6246,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.6193,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.5986,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.594,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [],
+        "answer": "I don't have enough information in the uploaded documents to answer that.",
+        "insufficient": true,
+        "cited": [],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1981,
+          "generation": 4259,
+          "total": 6239
+        },
+        "llm_input_tokens_est": 761,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true
+      },
+      {
+        "id": "q21",
+        "question": "What is the vesting schedule for employee stock options?",
+        "search_query": "What is the vesting schedule for employee stock options?",
+        "answerable": false,
+        "hits": [
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 3,
+            "score": 0.5871,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.575,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 1,
+            "chunk_index": 1,
+            "score": 0.5649,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.564,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.5611,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [],
+        "answer": "I don't have enough information in the uploaded documents to answer that.",
+        "insufficient": true,
+        "cited": [],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 1688,
+          "generation": 764,
+          "total": 2452
+        },
+        "llm_input_tokens_est": 787,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true
+      },
+      {
+        "id": "q22",
+        "question": "Can I bring my dog to the office?",
+        "search_query": "Can I bring my dog to the office?",
+        "answerable": false,
+        "hits": [
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 2,
+            "score": 0.6535,
+            "in_prompt": true
+          },
+          {
+            "file": "benefits_guide.txt",
+            "page": null,
+            "chunk_index": 2,
+            "score": 0.6318,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 5,
+            "score": 0.625,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 3,
+            "chunk_index": 4,
+            "score": 0.6226,
+            "in_prompt": true
+          },
+          {
+            "file": "employee_handbook.pdf",
+            "page": 2,
+            "chunk_index": 3,
+            "score": 0.6206,
+            "in_prompt": true
+          }
+        ],
+        "evidence_ranks": [],
+        "answer": "I don't have enough information in the uploaded documents to answer that.",
+        "insufficient": true,
+        "cited": [],
+        "timings_ms": {
+          "rewrite": 0,
+          "retrieval": 877,
+          "generation": 5274,
+          "total": 6151
+        },
+        "llm_input_tokens_est": 708,
+        "llm_output_tokens_est": 18,
+        "answer_correct": true,
+        "citation_correct": true
+      }
+    ]
+  }
+}
