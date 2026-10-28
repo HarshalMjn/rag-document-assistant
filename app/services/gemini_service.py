@@ -1,5 +1,4 @@
 import logging
-from typing import Literal, TypedDict
 
 from google import genai
 from google.genai import errors, types
@@ -20,20 +19,14 @@ _RETRY_OPTIONS = types.HttpRetryOptions(
     http_status_codes=[429, 500, 502, 503, 504],
 )
 
-# Gemini calls the assistant role "model".
-_ROLE_MAP = {"user": "user", "assistant": "model"}
-
 
 class GeminiServiceError(Exception):
     """Any failure talking to Gemini. Messages never include the API key."""
 
 
-class ChatMessage(TypedDict):
-    role: Literal["user", "assistant"]
-    content: str
-
-
 class GeminiService:
+    """Embeddings only. Chat answers and rewrites go through LLMService."""
+
     _client: genai.Client | None = None
 
     @classmethod
@@ -63,41 +56,6 @@ class GeminiService:
     async def embed_query(cls, text: str) -> list[float]:
         """Embed a user question. Uses the query task type so it matches document embeddings."""
         return (await cls._embed([text], task_type="RETRIEVAL_QUERY"))[0]
-
-    @classmethod
-    async def generate(
-        cls,
-        system_instruction: str,
-        messages: list[ChatMessage],
-        response_schema: type | None = None,
-        temperature: float = 0.0,
-    ) -> str:
-        """Generate a reply. System instructions are passed separately from user/document content.
-
-        With `response_schema` (e.g. a Pydantic model) the reply is JSON matching that schema.
-        """
-        contents = [
-            types.Content(
-                role=_ROLE_MAP[m["role"]], parts=[types.Part(text=m["content"])]
-            )
-            for m in messages
-        ]
-        config = types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=temperature,
-            response_mime_type="application/json" if response_schema else None,
-            response_schema=response_schema,
-        )
-
-        response = await cls._call(
-            "generate",
-            cls._get_client().aio.models.generate_content(
-                model=settings.LLM_MODEL, contents=contents, config=config
-            ),
-        )
-        if not response.text:
-            raise GeminiServiceError("Gemini returned an empty response")
-        return response.text
 
     @classmethod
     async def _embed(cls, texts: list[str], task_type: str) -> list[list[float]]:

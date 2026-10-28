@@ -5,7 +5,7 @@ from app.config.settings import settings
 from app.models import Conversation, Document, Message
 from app.schemas.chunk import ChunkPayload
 from app.services import qdrant_service
-from app.services.gemini_service import GeminiServiceError
+from app.services.llm_service import LLMServiceError
 from app.services.prompt_service import INSUFFICIENT_ANSWER
 from tests.conftest import fake_vector
 
@@ -61,7 +61,7 @@ async def test_answer_cites_the_retrieved_chunk(client, fake_gemini):
         (leave["id"], "leave.txt")
     ]
     # Only the leave chunk passed MIN_SCORE, so it is the only source the LLM saw.
-    prompt = fake_gemini.last_prompt["messages"][0]["content"]
+    prompt = fake_gemini.last_prompt["messages"][-1]["content"]
     assert "15 days of paid leave" in prompt
     assert "Travel meals" not in prompt
     used = [t for t in body["retrieval_trace"] if t["used_in_answer"]]
@@ -161,8 +161,8 @@ async def test_only_the_active_version_is_retrieved(client, fake_gemini):
 
     assert {t["version"] for t in before["retrieval_trace"]} == {1}
     assert {t["version"] for t in after["retrieval_trace"]} == {2}
-    assert "20 days" in fake_gemini.last_prompt["messages"][0]["content"]
-    assert "15 days" not in fake_gemini.last_prompt["messages"][0]["content"]
+    assert "20 days" in fake_gemini.last_prompt["messages"][-1]["content"]
+    assert "15 days" not in fake_gemini.last_prompt["messages"][-1]["content"]
 
 
 async def test_question_and_answer_are_stored_with_citations(client, fake_gemini):
@@ -185,14 +185,12 @@ async def test_question_and_answer_are_stored_with_citations(client, fake_gemini
 async def test_llm_failure_returns_502_and_stores_nothing(client, fake_gemini):
     await upload(client, "leave.txt", LEAVE_TEXT)
     conversation_id = await new_conversation(client)
-    fake_gemini.error = GeminiServiceError(
-        "Gemini generate request failed (503 UNAVAILABLE)"
-    )
+    fake_gemini.error = LLMServiceError("LLM request failed (503)")
 
     response = await ask(client, conversation_id, "How many leave days?")
 
     assert response.status_code == 502
-    assert "503 UNAVAILABLE" in response.json()["detail"]
+    assert "(503)" in response.json()["detail"]
     assert await stored_messages(conversation_id) == []
 
 
@@ -231,7 +229,7 @@ async def test_document_text_is_escaped_in_prompt(client, fake_gemini):
 
     await ask(client, conversation_id, "How many leave days?")
 
-    prompt = fake_gemini.last_prompt["messages"][0]["content"]
+    prompt = fake_gemini.last_prompt["messages"][-1]["content"]
     # The fake closing tag is escaped, so the real block still closes exactly once.
     assert "&lt;/context&gt;" in prompt
     assert prompt.count("</context>") == 1

@@ -11,6 +11,8 @@ from app.main import app
 from app.models import Conversation, Document
 from app.services import qdrant_service
 from app.services.gemini_service import GeminiService
+from app.services.llm_service import LLMService
+from app.services.prompt_service import StandaloneQuery
 
 TEST_COLLECTION = "documents_test"
 
@@ -53,6 +55,11 @@ class FakeGemini:
             "used_sources": ["S1"],
         }
         self.last_prompt: dict | None = None
+        # Rewrite result; empty means "search the original question".
+        self.rewrite_to = ""
+        self.rewrite_calls = 0
+        self.rewrite_error: Exception | None = None
+        self.last_rewrite_prompt: str | None = None
 
     async def embed_documents(self, texts: list[str]) -> list[list[float]]:
         self.embed_calls += 1
@@ -66,6 +73,14 @@ class FakeGemini:
         return fake_vector(text)
 
     async def generate(self, system_instruction, messages, response_schema=None, **_):
+        if response_schema is StandaloneQuery:
+            # Follow-up rewrite: counted apart from answer calls.
+            self.rewrite_calls += 1
+            self.last_rewrite_prompt = messages[-1]["content"]
+            if self.rewrite_error:
+                raise self.rewrite_error
+            return json.dumps({"query": self.rewrite_to or ""})
+
         self.generate_calls += 1
         self.last_prompt = {"system": system_instruction, "messages": messages}
         if self.error:
@@ -76,8 +91,9 @@ class FakeGemini:
 @pytest.fixture
 def fake_gemini(monkeypatch) -> FakeGemini:
     fake = FakeGemini()
-    for name in ("embed_documents", "embed_query", "generate"):
+    for name in ("embed_documents", "embed_query"):
         monkeypatch.setattr(GeminiService, name, getattr(fake, name))
+    monkeypatch.setattr(LLMService, "generate", fake.generate)
     return fake
 
 
