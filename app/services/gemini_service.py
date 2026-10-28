@@ -66,7 +66,9 @@ class GeminiService:
         With `response_schema` (e.g. a Pydantic model) the reply is JSON matching that schema.
         """
         contents = [
-            types.Content(role=_ROLE_MAP[m["role"]], parts=[types.Part(text=m["content"])])
+            types.Content(
+                role=_ROLE_MAP[m["role"]], parts=[types.Part(text=m["content"])]
+            )
             for m in messages
         ]
         config = types.GenerateContentConfig(
@@ -122,7 +124,9 @@ class GeminiService:
             return await request
         except errors.APIError as e:
             # Only the status is surfaced; the provider message stays in server logs.
-            logger.warning("Gemini %s request failed: %s %s", operation, e.code, e.status)
+            logger.warning(
+                "Gemini %s request failed: %s %s", operation, e.code, e.status
+            )
             raise GeminiServiceError(
                 f"Gemini {operation} request failed ({e.code} {e.status})"
             ) from e

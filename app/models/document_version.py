@@ -19,7 +19,9 @@ from app.models.document import DocumentStatus
 class DocumentVersion(Base):
     __tablename__ = "document_versions"
     __table_args__ = (
-        UniqueConstraint("document_id", "version", name="uq_document_versions_doc_version"),
+        UniqueConstraint(
+            "document_id", "version", name="uq_document_versions_doc_version"
+        ),
         Index("ix_document_versions_content_hash", "content_hash"),
     )
 

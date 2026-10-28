@@ -1,8 +1,10 @@
 import threading
+import uuid
 
 from qdrant_client import QdrantClient, models
 
 from app.config.settings import settings
+from app.schemas.chunk import ChunkPayload
 
 _client_lock = threading.Lock()
 
@@ -60,4 +62,75 @@ def ensure_collection() -> None:
         collection_name=name,
         field_name="version",
         field_schema=models.PayloadSchemaType.INTEGER,
+    )
+
+
+# Fixed namespace so the same (document_id, version, chunk_index) always maps to the same point ID.
+_CHUNK_ID_NAMESPACE = uuid.UUID("6f1c2a52-3c1e-4c55-9a43-1d0b6c2f8e17")
+_UPSERT_BATCH_SIZE = 100
+
+
+def make_chunk_id(document_id: str, version: int, chunk_index: int) -> str:
+    """Deterministic point ID: re-indexing the same version overwrites instead of duplicating."""
+    return str(
+        uuid.uuid5(_CHUNK_ID_NAMESPACE, f"{document_id}:{version}:{chunk_index}")
+    )
+
+
+def _document_filter(document_id: str, version: int | None = None) -> models.Filter:
+    conditions = [
+        models.FieldCondition(
+            key="document_id", match=models.MatchValue(value=document_id)
+        )
+    ]
+    if version is not None:
+        conditions.append(
+            models.FieldCondition(key="version", match=models.MatchValue(value=version))
+        )
+    return models.Filter(must=conditions)
+
+
+def upsert_chunks(payloads: list[ChunkPayload], vectors: list[list[float]]) -> None:
+    """Store chunks with their vectors. Returns only after Qdrant has applied every write."""
+    if len(payloads) != len(vectors):
+        raise ValueError(f"Got {len(payloads)} payloads but {len(vectors)} vectors")
+
+    points = [
+        models.PointStruct(id=p.chunk_id, vector=v, payload=p.model_dump())
+        for p, v in zip(payloads, vectors, strict=True)
+    ]
+    for start in range(0, len(points), _UPSERT_BATCH_SIZE):
+        qdrant_client.upsert(
+            collection_name=settings.QDRANT_COLLECTION,
+            points=points[start : start + _UPSERT_BATCH_SIZE],
+            wait=True,
+        )
+
+
+def count_chunks(document_id: str, version: int | None = None) -> int:
+    """Number of stored chunks for a document, or for one version of it."""
+    return qdrant_client.count(
+        collection_name=settings.QDRANT_COLLECTION,
+        count_filter=_document_filter(document_id, version),
+        exact=True,
+    ).count
+
+
+def delete_version(document_id: str, version: int) -> None:
+    """Remove one version's chunks, e.g. the old version after an update succeeds."""
+    qdrant_client.delete(
+        collection_name=settings.QDRANT_COLLECTION,
+        points_selector=models.FilterSelector(
+            filter=_document_filter(document_id, version)
+        ),
+        wait=True,
+    )
+
+
+def delete_document(document_id: str) -> None:
+    """Remove every chunk of a document, across all versions."""
+    qdrant_client.delete(
+        collection_name=settings.QDRANT_COLLECTION,
+        points_selector=models.FilterSelector(filter=_document_filter(document_id)),
+        wait=True,
     )
