@@ -1,17 +1,14 @@
 services:
   fastapi_app:
     build: .
-    command:
-      - fastapi
-      - run
-      - --reload
-      - --host
-      - "0.0.0.0"
-      - "app/main.py"
+    # Apply pending migrations before serving so the schema always matches the code.
+    command: sh -c "alembic upgrade head && fastapi run --reload --host 0.0.0.0 app/main.py"
     env_file:
       - .env
     volumes:
       - ./app:/code/app
+      - ./alembic:/code/alembic
+      - ./alembic.ini:/code/alembic.ini
       - ./tests:/code/tests
     ports:
       - "8000:8000"

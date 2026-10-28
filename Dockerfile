@@ -20,13 +20,16 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PYTHONPATH=/code
 
-COPY ./pyproject.toml ./uv.lock /code/
+COPY ./pyproject.toml ./uv.lock ./alembic.ini /code/
 
 COPY ./app /code/app
+
+COPY ./alembic /code/alembic
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
 EXPOSE 8000
 
-CMD ["fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+# Apply pending migrations before serving so the schema always matches the code.
+CMD ["sh", "-c", "alembic upgrade head && fastapi run app/main.py --host 0.0.0.0 --port 8000"]
