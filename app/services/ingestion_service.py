@@ -17,6 +17,8 @@ from app.services.gemini_service import GeminiService, GeminiServiceError
 
 logger = logging.getLogger(__name__)
 
+INTERRUPTED_ERROR = "Indexing was interrupted by a server restart; upload the file again"
+
 
 class UpdateConflictError(Exception):
     """Another update of the same document claimed the next version number first."""
@@ -132,7 +134,45 @@ class IngestionService:
         return removed
 
     @classmethod
-    async def _remove_old_version(cls, document_id: str, version: int) -> None:
+    async def recover_interrupted(cls, db: AsyncSession) -> int:
+        """Mark versions left `uploaded`/`processing` by a crash or restart as failed.
+
+        Indexing runs inside the request, so on startup no version can still be in
+        progress. Their partial chunks are removed; active_version_id is untouched, so an
+        interrupted update leaves the previous version live. Returns the versions marked.
+        Assumes a single app process: another live worker could still be indexing.
+        """
+        result = await db.execute(
+            select(DocumentVersion).where(
+                DocumentVersion.status.in_(
+                    [DocumentStatus.UPLOADED, DocumentStatus.PROCESSING]
+                )
+            )
+        )
+        versions = list(result.scalars().all())
+        for version in versions:
+            try:
+                await run_in_threadpool(
+                    qdrant_service.delete_version, version.document_id, version.version
+                )
+            except Exception:
+                logger.exception(
+                    "Could not clean up chunks for document %s v%s",
+                    version.document_id,
+                    version.version,
+                )
+            version.status = DocumentStatus.FAILED
+            version.error = INTERRUPTED_ERROR
+            logger.warning(
+                "Marked interrupted document %s v%s as failed",
+                version.document_id,
+                version.version,
+            )
+        await db.commit()
+        return len(versions)
+
+    @classmethod
+    async def _remove_old_version(cls, document_id: int, version: int) -> None:
         """Delete a replaced version's chunks. Failure is only logged: retrieval already
         ignores every version except the active one."""
         try:
