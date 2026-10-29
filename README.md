@@ -117,24 +117,24 @@ The same steps through the API. On Windows PowerShell, use `curl.exe` instead of
 ```bash
 # 1. Upload a document. The response returns only once indexing has finished.
 curl -F "file=@samples/employee_handbook.pdf" http://localhost:8000/documents
-# -> 201 {"document": {"id": "<document_id>", "status": "indexed", "active_version": 1, ...}, "duplicate": false}
+# -> 201 {"data": {"document": {"id": <document_id>, "status": "indexed", "active_version": 1, ...}, "duplicate": false}}
 
 # 2. Create a conversation.
 curl -X POST http://localhost:8000/conversations
-# -> {"id": "<conversation_id>", ...}
+# -> 201 {"data": {"id": <conversation_id>, ...}}
 
 # 3. Ask a question.
 curl -X POST http://localhost:8000/chat/<conversation_id> \
      -H "Content-Type: application/json" \
      -d '{"question": "How many days of paid sick leave do employees get?"}'
-# -> {"answer": "Employees receive 10 days of paid sick leave per year.",
+# -> {"data": {"answer": "Employees receive 10 days of paid sick leave per year.",
 #     "citations": [{"filename": "employee_handbook.pdf", "page": 1, "chunk_id": "...", ...}],
 #     "insufficient_evidence": false,
 #     "search_query": "How many days of paid sick leave do employees get?",
 #     "history_used": 0,
 #     "retrieval_trace": [{"filename": "...", "version": 1, "chunk_index": 0, "score": 0.66,
 #                          "in_prompt": true, "used_in_answer": true}, ...],
-#     "timings": {"rewrite_ms": 12, "retrieval_ms": 950, "generation_ms": 1500, "total_ms": 2462}}
+#     "timings": {"rewrite_ms": 12, "retrieval_ms": 950, "generation_ms": 1500, "total_ms": 2462}}}
 
 # 4. A follow-up. "those" is resolved using the previous messages.
 curl -X POST http://localhost:8000/chat/<conversation_id> \
@@ -147,11 +147,11 @@ curl http://localhost:8000/chat/<conversation_id>/history
 
 # 6. Replace the document with a new version (same document_id).
 curl -X PUT -F "file=@handbook_v2.pdf" http://localhost:8000/documents/<document_id>
-# -> 200 {"document": {"active_version": 2, ...}, "duplicate": false}
+# -> 200 {"data": {"document": {"active_version": 2, ...}, "duplicate": false}}
 
 # 7. Delete it.
 curl -X DELETE http://localhost:8000/documents/<document_id>
-# -> {"id": "<document_id>", "deleted": true, "chunks_removed": 3}
+# -> {"data": {"id": <document_id>, "deleted": true, "chunks_removed": 3}}
 ```
 
 ---
@@ -174,9 +174,14 @@ Interactive docs with every request and response schema: http://localhost:8000/d
 | `GET /health` | Checks Qdrant and MySQL: `{"status": "ok", "qdrant": "ok", "mysql": "ok"}` | 200 · 503 degraded |
 | `GET /config` | Non-secret settings for the UI (chunking, top-k, min score, history limit, model names) | 200 |
 
+Every successful response is wrapped as `{"data": ...}`. Errors use FastAPI's standard
+`{"detail": "..."}`, except a failed upload or update (422), which returns
+`{"data": {"document": ..., "duplicate": false}}` so the reason is still available.
+
 No response ever contains API keys, passwords, hosts or the full prompt. Provider errors
 are reported only by their status code, for example
-`"The language model is unavailable: LLM request failed (503)"`.
+`"The language model is unavailable: LLM request failed (503)"` or
+`"The embedding service is unavailable: Gemini embed request failed (429 RESOURCE_EXHAUSTED)"`.
 
 ---
 
@@ -193,7 +198,7 @@ flowchart LR
         X --> C["Chunk 800 chars,<br/>120 overlap"]
         C --> E1["Embed in batches<br/>of up to 100"]
         E1 --> Q1["Upsert to Qdrant<br/>payload: document_id, version,<br/>chunk_id, file, page, hash, text"]
-        Q1 --> SW["Switch active_version<br/>in MySQL, then delete<br/>the old version's chunks"]
+        Q1 --> SW["Switch active_version_id<br/>in MySQL, then delete<br/>the old version's chunks"]
     end
 
     subgraph Chat["Question: POST /chat/{conversation_id}"]
@@ -252,7 +257,7 @@ This section helps you trace a request through the code.
    - `GeminiService.embed_documents`: batches of up to 100
    - `qdrant_service.upsert_chunks`: waits until Qdrant has applied the write
    - `qdrant_service.count_chunks`: checks that every chunk was stored
-4. On success the version becomes `indexed` and `documents.active_version` is set. On
+4. On success the version becomes `indexed` and `documents.active_version_id` is set. On
    failure, `_mark_failed` deletes any partial chunks and stores a user-safe reason on
    the version (status `failed`). Either way the HTTP response is sent only after this
    step, so "indexed" is never reported early.
@@ -268,7 +273,8 @@ This section helps you trace a request through the code.
    `PromptService.build_rewrite`. It is skipped when there is no history. If the rewrite
    fails or comes back empty, the original question is used.
 3. `RetrievalService.retrieve` (`services/retrieval_service.py`) reads every live
-   `(document_id, active_version)` pair from MySQL. It embeds the query and calls
+   `(document_id, version)` pair from MySQL (each document joined to its active version
+   row). It embeds the query and calls
    `qdrant_service.search`, which only matches those pairs, so retired versions and
    deleted documents can never be returned. Chunks scoring at least `MIN_SCORE` become
    evidence.
@@ -386,15 +392,24 @@ twice for the same content.
 
 ### Safe document update
 
-Each document has a stable `document_id` (UUID). Its versions live in
-`document_versions`, which tracks the version number, SHA-256 hash, status, error,
-`created_at` / `updated_at`, page count and chunk count. `documents.active_version`
-points to the live one.
+Each document has a stable `document_id` (auto-increment integer). The `documents` row
+only holds that identity: `id`, `active_version_id`, `created_at`, `updated_at` and
+`deleted_at`. Everything about the content lives in `document_versions`: version number,
+filename, source type and URL, SHA-256 hash, status, error, `created_at` / `updated_at`,
+page count and chunk count. `documents.active_version_id` is a foreign key to the live
+version row (`ON DELETE SET NULL`). The API still returns `filename`, `status` and
+`active_version` on each document; they are read from the active version, or from the
+newest version while nothing is live yet.
+
+The two tables reference each other, so the migration adds that foreign key after both
+tables exist. The database guarantees the pointer names a real version row; the code
+guarantees it is a version of the same document and that it is `indexed`.
 
 1. **Prepare.** The new file is stored as version N+1, then extracted, chunked, embedded
    and written to Qdrant with `version = N+1`. Meanwhile retrieval keeps using version N,
-   because it only searches `(document_id, active_version)` pairs.
-2. **Switch.** Only after every chunk is confirmed stored is `active_version` set to N+1,
+   because it only searches each document's active `(document_id, version)` pair.
+2. **Switch.** Only after every chunk is confirmed stored is `active_version_id` moved to
+   version N+1,
    in one database commit. From that moment only the new chunks can be retrieved.
 3. **Retire.** The old version's chunks are deleted from Qdrant. If that deletion fails,
    it is only logged: those chunks can't be retrieved anyway, because they aren't the
@@ -447,6 +462,13 @@ chunk of every version is deleted from Qdrant, and the number removed is returne
 - **Invalid JSON from the LLM** returns 502 too.
 - **Failed rewrites** fall back to the original question.
 - **Error messages show only a status**, never provider text or keys.
+- **A crash or restart during indexing** would leave a version `processing` forever.
+  On startup, `IngestionService.recover_interrupted` marks every version still
+  `uploaded` or `processing` as `failed` ("interrupted by a server restart"), removes its
+  partial chunks from Qdrant, and leaves `active_version_id` alone. So an interrupted
+  first upload shows as failed, and an interrupted update keeps the previous version
+  live. This assumes one app process; with several workers, one starting up could fail
+  an upload another is still indexing.
 
 ### Why these providers and Qdrant
 
