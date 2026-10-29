@@ -30,7 +30,8 @@ from app.services.llm_service import ChatMessage, LLMServiceError
 from app.services.prompt_service import INSUFFICIENT_ANSWER, PromptService
 
 ROOT = Path(__file__).resolve().parent.parent
-SAMPLES = ROOT / "samples"
+# samples/ sits next to backend/ in the repo; the container mounts it at /code/samples.
+SAMPLES = ROOT / "samples" if (ROOT / "samples").is_dir() else ROOT.parent / "samples"
 QUESTIONS = Path(__file__).parent / "questions.json"
 RESULTS = Path(__file__).parent / "results"
 

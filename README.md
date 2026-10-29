@@ -73,7 +73,7 @@ To stop everything, run `docker compose down`. Your data stays in Docker volumes
 ## Environment variables
 
 All settings are read from `.env` (see [`.env.example`](.env.example)) and validated in
-[`app/config/settings.py`](app/config/settings.py). Never commit `.env`: it is
+[`backend/app/config/settings.py`](backend/app/config/settings.py). Never commit `.env`: it is
 git-ignored.
 
 | Variable | Default | Meaning |
@@ -227,7 +227,7 @@ flowchart LR
 
 | Component | Role |
 |---|---|
-| **FastAPI** (`app/`) | HTTP API, organised as routes → controllers → services. Routes declare endpoints, controllers turn results and errors into HTTP responses, and services hold the logic. |
+| **FastAPI** (`backend/app/`) | HTTP API, organised as routes → controllers → services. Routes declare endpoints, controllers turn results and errors into HTTP responses, and services hold the logic. |
 | **MySQL** | The source of truth for *what is live*: documents, their versions and which one is active, soft-deletes, conversations and messages. |
 | **Qdrant** | Stores one point per chunk: its vector plus a payload with `document_id`, `version`, `chunk_id`, `chunk_index`, `filename`, `page`, `content_hash` and `text`. It has payload indexes on `document_id` and `version`. |
 | **Gemini** | Embeddings only, with separate task types for documents (`RETRIEVAL_DOCUMENT`) and questions (`RETRIEVAL_QUERY`). |
@@ -423,7 +423,7 @@ guarantees it is a version of the same document and that it is `indexed`.
 
 Chunk ids are deterministic (`uuid5(document_id:version:chunk_index)`), so re-indexing
 the same version overwrites instead of duplicating. This is shown by
-`test_leave_policy_update_from_15_to_20_days` and the tests in `tests/test_update.py`.
+`test_leave_policy_update_from_15_to_20_days` and the tests in `backend/tests/test_update.py`.
 
 ### Deleting a document, and its caveats
 
@@ -496,7 +496,7 @@ collection (`documents_test`, deleted afterwards). Gemini and the LLM are replac
 deterministic fakes, so the tests need no API keys and cost nothing.
 
 ```bash
-docker compose exec fastapi_app pytest -q        # 95 tests
+docker compose exec fastapi_app pytest -q        # 98 tests
 docker compose exec fastapi_app ruff check app tests eval
 ```
 
@@ -511,7 +511,7 @@ docker compose exec fastapi_app ruff check app tests eval
 | Settings, schemas, migrations, health, config without secrets | `test_settings.py`, `test_schemas.py`, `test_migrations.py`, `test_health.py` |
 
 **The assignment's required scenarios** (section 6) are mapped to their tests in the
-docstring of [`tests/test_scenarios.py`](tests/test_scenarios.py). That file also holds
+docstring of [`backend/tests/test_scenarios.py`](backend/tests/test_scenarios.py). That file also holds
 the 15 → 20 days update test, the 10-message boundary test, the two-source citation test
 and the embedding-failure test.
 
@@ -523,8 +523,8 @@ docker compose exec fastapi_app python -m eval.run_eval
 
 This indexes [`samples/`](samples) into separate `eval_c800` / `eval_c400` collections
 (your real data is untouched). It asks the 22 questions in
-[`eval/questions.json`](eval/questions.json) with real embeddings and LLM calls, and writes
-`eval/results/`. The run takes a few minutes. [EVALUATION.md](EVALUATION.md) explains the
+[`backend/eval/questions.json`](backend/eval/questions.json) with real embeddings and LLM calls, and writes
+`backend/eval/results/`. The run takes a few minutes. [EVALUATION.md](EVALUATION.md) explains the
 results:
 
 - Recall@3 is 1.0 and MRR 0.97 with 800/120 chunks.
@@ -536,29 +536,32 @@ results:
 ## Project structure
 
 ```
-app/
-  main.py                    FastAPI app; ensures the Qdrant collection on startup
-  config/                    settings (.env, validated) and the async database engine
-  models/                    SQLAlchemy tables: documents, document_versions, conversations, messages
-  schemas/                   Pydantic request/response models and the Qdrant chunk payload
-  routes/                    endpoint declarations only
-  controllers/               HTTP concerns: validation, status codes, error mapping
-  services/
-    ingestion_service.py     upload, index, update, delete; version switching
-    extraction_service.py    PDF/TXT to text per page
-    chunking_service.py      recursive splitter with overlap
-    gemini_service.py        embeddings (batched, retried)
-    qdrant_service.py        collection, upsert, count, search filtered by live versions, delete
-    retrieval_service.py     live versions from MySQL + vector search + MIN_SCORE
-    prompt_service.py        system rules, context block, rewrite prompt, escaping
-    llm_service.py           OpenAI-compatible chat client (JSON mode, retries)
-    chat_service.py          history window, rewrite, answer, citations, trace, conversations
-alembic/                     database migrations (run automatically on startup)
-tests/                       pytest suite (fakes for Gemini and the LLM)
-eval/                        evaluation questions, script and results
-samples/                     sample documents (self-written, no real data)
+backend/                     FastAPI API (its own Dockerfile and pyproject.toml)
+  app/
+    main.py                  FastAPI app; ensures the Qdrant collection and recovers
+                             interrupted uploads on startup
+    config/                  settings (.env, validated) and the async database engine
+    models/                  SQLAlchemy tables: documents, document_versions, conversations, messages
+    schemas/                 Pydantic request/response models and the Qdrant chunk payload
+    routes/                  endpoint declarations only
+    controllers/             HTTP concerns: validation, status codes, error mapping
+    services/
+      ingestion_service.py   upload, index, update, delete; version switching; crash recovery
+      extraction_service.py  PDF/TXT to text per page
+      chunking_service.py    recursive splitter with overlap
+      gemini_service.py      embeddings (batched, retried)
+      qdrant_service.py      collection, upsert, count, search filtered by live versions, delete
+      retrieval_service.py   live versions from MySQL + vector search + MIN_SCORE
+      prompt_service.py      system rules, context block, rewrite prompt, escaping
+      llm_service.py         OpenAI-compatible chat client (JSON mode, retries)
+      chat_service.py        history window, rewrite, answer, citations, trace, conversations
+  alembic/                   database migrations (run automatically on startup)
+  tests/                     pytest suite (fakes for Gemini and the LLM)
+  eval/                      evaluation questions, script and results
 frontend/                    React + TypeScript UI (Vite)
+samples/                     sample documents (self-written, no real data)
 docker-compose.yml           API, MySQL, Qdrant and the frontend
+.env.example                 every setting, without secrets
 ```
 
 ---

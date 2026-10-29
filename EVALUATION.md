@@ -2,15 +2,15 @@
 
 Retrieval and answer quality of the assistant on a small, self-written HR knowledge base,
 for two chunking configurations. Every number below comes from one run of
-`eval/run_eval.py`; the raw per-question data is in `eval/results/results.json` and the
-generated tables in `eval/results/summary.md`.
+`backend/eval/run_eval.py`; the raw per-question data is in `backend/eval/results/results.json` and the
+generated tables in `backend/eval/results/summary.md`.
 
 ## Setup
 
 | | |
 |---|---|
 | Corpus | `samples/`: `employee_handbook.pdf` (3 pages: leave, remote work, travel), `it_security_policy.txt`, `benefits_guide.txt`. About 4,200 characters in total. |
-| Question set | `eval/questions.json`: 22 questions. 19 answerable, including 2 that need evidence from two documents (q18, q19) and 2 follow-ups that only make sense after the previous question (q05, q16). 3 unanswerable, including a near-miss trap (q20 "parental leave bonus": the corpus has parental leave and a referral bonus, but no parental leave bonus). |
+| Question set | `backend/eval/questions.json`: 22 questions. 19 answerable, including 2 that need evidence from two documents (q18, q19) and 2 follow-ups that only make sense after the previous question (q05, q16). 3 unanswerable, including a near-miss trap (q20 "parental leave bonus": the corpus has parental leave and a referral bonus, but no parental leave bonus). |
 | Models | Embeddings `gemini-embedding-001` (768 dims). Answers `openai/gpt-oss-120b`, follow-up rewrites `openai/gpt-oss-20b`, both on Groq. |
 | Retrieval | Cosine similarity in Qdrant, top-k = 5, `MIN_SCORE` = 0.55 |
 | Config A | 800-character chunks, 120 overlap (the shipped default): 7 chunks |
