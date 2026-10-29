@@ -17,7 +17,7 @@ export interface DocumentVersion {
 }
 
 export interface DocumentOut {
-  id: string;
+  id: number;
   filename: string;
   source_type: "file" | "url";
   source_url: string | null;
@@ -34,13 +34,13 @@ export interface UploadResponse {
 }
 
 export interface DeleteResponse {
-  id: string;
+  id: number;
   deleted: boolean;
   chunks_removed: number;
 }
 
 export interface ConversationSummary {
-  id: string;
+  id: number;
   title: string | null;
   created_at: string;
   message_count: number;
@@ -48,7 +48,7 @@ export interface ConversationSummary {
 }
 
 export interface Citation {
-  document_id: string;
+  document_id: number;
   filename: string;
   page: number | null;
   chunk_id: string;
@@ -57,7 +57,7 @@ export interface Citation {
 
 export interface TraceItem {
   chunk_id: string;
-  document_id: string;
+  document_id: number;
   version: number;
   filename: string;
   page: number | null;
@@ -75,7 +75,7 @@ export interface Timings {
 }
 
 export interface ChatResponse {
-  conversation_id: string;
+  conversation_id: number;
   answer: string;
   citations: Citation[];
   insufficient_evidence: boolean;
@@ -139,7 +139,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     throw new ApiError(response.status, errorMessage(response.status, body), body);
   }
-  return body as T;
+  // Every successful response is wrapped as {"data": ...}.
+  return (body as { data: T }).data;
 }
 
 function errorMessage(status: number, body: unknown): string {
@@ -171,11 +172,16 @@ async function uploadRequest(path: string, method: string, file: File): Promise<
   try {
     return await request<UploadResponse>(path, { method, ...fileForm(file) });
   } catch (e) {
-    if (e instanceof ApiError && e.status === 422 && isUploadResponse(e.body)) {
-      return e.body;
+    const failed = e instanceof ApiError && e.status === 422 ? dataOf(e.body) : null;
+    if (isUploadResponse(failed)) {
+      return failed;
     }
     throw e;
   }
+}
+
+function dataOf(body: unknown): unknown {
+  return body && typeof body === "object" && "data" in body ? (body as { data: unknown }).data : null;
 }
 
 function isUploadResponse(body: unknown): body is UploadResponse {
@@ -183,16 +189,16 @@ function isUploadResponse(body: unknown): body is UploadResponse {
 }
 
 export const api = {
-  health: () => request<{ data: Health }>("/health").then((r) => r.data),
-  config: () => request<{ data: Config }>("/config").then((r) => r.data),
+  health: () => request<Health>("/health"),
+  config: () => request<Config>("/config"),
   documents: () => request<DocumentOut[]>("/documents"),
   upload: (file: File) => uploadRequest("/documents", "POST", file),
-  replace: (id: string, file: File) => uploadRequest(`/documents/${id}`, "PUT", file),
-  remove: (id: string) => request<DeleteResponse>(`/documents/${id}`, { method: "DELETE" }),
+  replace: (id: number, file: File) => uploadRequest(`/documents/${id}`, "PUT", file),
+  remove: (id: number) => request<DeleteResponse>(`/documents/${id}`, { method: "DELETE" }),
   conversations: () => request<ConversationSummary[]>("/conversations"),
-  createConversation: () => request<{ id: string }>("/conversations", json("POST")),
-  history: (id: string) =>
-    request<{ conversation_id: string; messages: Message[] }>(`/chat/${id}/history`),
-  ask: (id: string, question: string) =>
+  createConversation: () => request<{ id: number }>("/conversations", json("POST")),
+  history: (id: number) =>
+    request<{ conversation_id: number; messages: Message[] }>(`/chat/${id}/history`),
+  ask: (id: number, question: string) =>
     request<ChatResponse>(`/chat/${id}`, json("POST", { question })),
 };

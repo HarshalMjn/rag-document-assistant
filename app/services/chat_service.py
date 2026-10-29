@@ -42,13 +42,12 @@ class ChatService:
         conversation = Conversation(title=title)
         db.add(conversation)
         await db.commit()
-        # Load created_at, which MySQL fills in.
         await db.refresh(conversation)
         return conversation
 
     @classmethod
     async def answer(
-        cls, db: AsyncSession, conversation_id: str, question: str
+        cls, db: AsyncSession, conversation_id: int, question: str
     ) -> ChatResponse:
         """Answer one question from the documents and store both turns.
 
@@ -140,7 +139,7 @@ class ChatService:
         ]
 
     @classmethod
-    async def history(cls, db: AsyncSession, conversation_id: str) -> list[Message]:
+    async def history(cls, db: AsyncSession, conversation_id: int) -> list[Message]:
         """Every message of one conversation, oldest first."""
         if await db.get(Conversation, conversation_id) is None:
             raise ConversationNotFoundError(conversation_id)
@@ -153,7 +152,7 @@ class ChatService:
 
     @classmethod
     async def recent_history(
-        cls, db: AsyncSession, conversation_id: str, limit: int | None = None
+        cls, db: AsyncSession, conversation_id: int, limit: int | None = None
     ) -> list[ChatMessage]:
         """The latest `limit` messages of one conversation (user + assistant combined), oldest first.
 

@@ -125,12 +125,13 @@ async def client(fake_gemini, test_collection):
         path = response.request.url.path
         if path == "/documents":
             await response.aread()
-            document = response.json().get("document") or {}
+            # Failed uploads (4xx) carry no "data"; successful and 422 ones do.
+            document = (response.json().get("data") or {}).get("document") or {}
             if "id" in document:
                 documents.append(document["id"])
         elif path == "/conversations":
             await response.aread()
-            conversations.append(response.json()["id"])
+            conversations.append(response.json()["data"]["id"])
 
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(

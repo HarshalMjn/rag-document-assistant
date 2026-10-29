@@ -11,14 +11,14 @@ async def test_delete_removes_the_document_and_its_chunks(client, fake_gemini):
     response = await client.delete(f"/documents/{document['id']}")
 
     assert response.status_code == 200
-    assert response.json() == {
+    assert response.json()["data"] == {
         "id": document["id"],
         "deleted": True,
         "chunks_removed": 1,
     }
     assert qdrant_service.count_chunks(document["id"]) == 0
     assert (await client.get(f"/documents/{document['id']}")).status_code == 404
-    listed = (await client.get("/documents")).json()
+    listed = (await client.get("/documents")).json()["data"]
     assert document["id"] not in [d["id"] for d in listed]
 
 
@@ -28,7 +28,7 @@ async def test_delete_removes_chunks_of_every_version(client, fake_gemini):
 
     response = await client.delete(f"/documents/{document['id']}")
 
-    assert response.json()["chunks_removed"] == 1
+    assert response.json()["data"]["chunks_removed"] == 1
     assert qdrant_service.count_chunks(document["id"]) == 0
 
 
@@ -38,7 +38,7 @@ async def test_chat_never_cites_a_deleted_document(client, fake_gemini):
     await client.delete(f"/documents/{leave['id']}")
     conversation_id = await new_conversation(client)
 
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     assert leave["id"] not in {t["document_id"] for t in body["retrieval_trace"]}
     assert leave["id"] not in {c["document_id"] for c in body["citations"]}
@@ -58,10 +58,10 @@ async def test_document_stays_deleted_if_qdrant_cleanup_fails(
     conversation_id = await new_conversation(client)
 
     response = await client.delete(f"/documents/{document['id']}")
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     assert response.status_code == 200
-    assert response.json()["chunks_removed"] == 0
+    assert response.json()["data"]["chunks_removed"] == 0
     # The chunks are still in Qdrant, but MySQL says the document is gone.
     assert qdrant_service.count_chunks(document["id"]) == 1
     assert body["retrieval_trace"] == []
@@ -78,7 +78,7 @@ async def test_delete_twice_is_404(client, fake_gemini):
 
 
 async def test_delete_unknown_document_is_404(client):
-    response = await client.delete("/documents/does-not-exist")
+    response = await client.delete("/documents/999999")
 
     assert response.status_code == 404
 
@@ -102,6 +102,6 @@ async def test_same_file_can_be_uploaded_again_after_delete(client, fake_gemini)
 
     # Not a duplicate of the deleted document: it is indexed again as a new one.
     assert response.status_code == 201
-    body = response.json()
+    body = response.json()["data"]
     assert body["duplicate"] is False
     assert body["document"]["id"] != document["id"]

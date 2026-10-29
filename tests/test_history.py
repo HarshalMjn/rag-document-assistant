@@ -31,7 +31,7 @@ async def test_retrieval_uses_the_rewrite_but_the_llm_sees_the_question(
     await ask(client, conversation_id, "How many leave days?")
     fake_gemini.rewrite_to = "travel meals reimbursed per day"
 
-    body = (await ask(client, conversation_id, "And for that?")).json()
+    body = (await ask(client, conversation_id, "And for that?")).json()["data"]
 
     used = [t for t in body["retrieval_trace"] if t["used_in_answer"]]
     assert [t["document_id"] for t in used] == [travel["id"]]
@@ -56,7 +56,7 @@ async def test_empty_rewrite_searches_the_original_question(client, fake_gemini)
     await ask(client, conversation_id, "How many leave days?")
     fake_gemini.rewrite_to = "   "
 
-    body = (await ask(client, conversation_id, "And per year?")).json()
+    body = (await ask(client, conversation_id, "And per year?")).json()["data"]
 
     assert fake_gemini.rewrite_calls == 1
     assert body["search_query"] == "And per year?"
@@ -88,7 +88,7 @@ async def test_history_limit_zero_turns_history_off(client, fake_gemini, monkeyp
     conversation_id = await new_conversation(client)
     await ask(client, conversation_id, "How many leave days?")
 
-    body = (await ask(client, conversation_id, "Leave days per year?")).json()
+    body = (await ask(client, conversation_id, "Leave days per year?")).json()["data"]
 
     assert fake_gemini.rewrite_calls == 0
     assert body["search_query"] == "Leave days per year?"

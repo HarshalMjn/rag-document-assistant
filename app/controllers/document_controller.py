@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.config.settings import settings
 from app.models.document import Document, DocumentStatus
+from app.schemas.common import DataResponse
 from app.schemas.document import (
     DocumentDeleteResponse,
     DocumentOut,
@@ -31,7 +32,7 @@ class DocumentController:
         return cls._upload_response(document, duplicate, success_status=201)
 
     @classmethod
-    async def update(cls, db: AsyncSession, document_id: str, file: UploadFile):
+    async def update(cls, db: AsyncSession, document_id: int, file: UploadFile):
         document = await IngestionService.get_document(db, document_id)
         if document is None:
             raise HTTPException(status_code=404, detail="Document not found")
@@ -50,7 +51,6 @@ class DocumentController:
 
     @staticmethod
     def _clean_filename(file: UploadFile) -> str:
-        # Browsers may send a full client path; keep only the file name.
         return PurePath((file.filename or "").replace("\\", "/")).name[:255]
 
     @staticmethod
@@ -72,7 +72,7 @@ class DocumentController:
             # Indexing failed: the body still carries the document id and the reason.
             status_code = 422
         return JSONResponse(
-            status_code=status_code, content=body.model_dump(mode="json")
+            status_code=status_code, content={"data": body.model_dump(mode="json")}
         )
 
     @classmethod
@@ -89,7 +89,6 @@ class DocumentController:
             )
 
         max_bytes = settings.MAX_UPLOAD_MB * 1024 * 1024
-        # Read one byte past the limit, so oversized files are caught without loading them whole.
         data = await file.read(max_bytes + 1)
         if len(data) > max_bytes:
             raise HTTPException(
@@ -98,34 +97,42 @@ class DocumentController:
             )
         if not data:
             raise HTTPException(status_code=400, detail="The file is empty")
-        # The extension alone can lie; every PDF starts with this signature.
+
         if extension == ".pdf" and not data.startswith(b"%PDF-"):
             raise HTTPException(status_code=400, detail="The file is not a valid PDF")
         return data
 
     @classmethod
-    async def list_documents(cls, db: AsyncSession) -> list[DocumentOut]:
+    async def list_documents(cls, db: AsyncSession) -> DataResponse[list[DocumentOut]]:
         result = await db.execute(
             select(Document)
             .options(selectinload(Document.versions))
             .where(Document.deleted_at.is_(None))
             .order_by(Document.created_at.desc())
         )
-        return [DocumentOut.model_validate(d) for d in result.scalars().all()]
+        return DataResponse(
+            data=[DocumentOut.model_validate(d) for d in result.scalars().all()]
+        )
 
     @classmethod
-    async def get_document(cls, db: AsyncSession, document_id: str) -> DocumentOut:
+    async def get_document(
+        cls, db: AsyncSession, document_id: int
+    ) -> DataResponse[DocumentOut]:
         document = await IngestionService.get_document(db, document_id)
         if document is None:
             raise HTTPException(status_code=404, detail="Document not found")
-        return DocumentOut.model_validate(document)
+        return DataResponse(data=DocumentOut.model_validate(document))
 
     @classmethod
-    async def delete(cls, db: AsyncSession, document_id: str) -> DocumentDeleteResponse:
+    async def delete(
+        cls, db: AsyncSession, document_id: int
+    ) -> DataResponse[DocumentDeleteResponse]:
         document = await IngestionService.get_document(db, document_id)
         if document is None:
             raise HTTPException(status_code=404, detail="Document not found")
         removed = await IngestionService.delete_document(db, document)
-        return DocumentDeleteResponse(
-            id=document_id, deleted=True, chunks_removed=removed
+        return DataResponse(
+            data=DocumentDeleteResponse(
+                id=document_id, deleted=True, chunks_removed=removed
+            )
         )

@@ -2,7 +2,8 @@ from sqlalchemy import select, update
 
 from app.config.database import SessionLocal
 from app.config.settings import settings
-from app.models import Conversation, Document, Message
+from app.models import Conversation, Document, DocumentVersion, Message
+from app.models.document import DocumentStatus
 from app.schemas.chunk import ChunkPayload
 from app.services import qdrant_service
 from app.services.llm_service import LLMServiceError
@@ -18,20 +19,20 @@ async def upload(client, filename: str, data: bytes) -> dict:
         "/documents", files={"file": (filename, data, "text/plain")}
     )
     assert response.status_code == 201, response.text
-    return response.json()["document"]
+    return response.json()["data"]["document"]
 
 
 async def new_conversation(client) -> str:
     response = await client.post("/conversations")
     assert response.status_code == 201
-    return response.json()["id"]
+    return response.json()["data"]["id"]
 
 
-async def ask(client, conversation_id: str, question: str):
+async def ask(client, conversation_id: int, question: str):
     return await client.post(f"/chat/{conversation_id}", json={"question": question})
 
 
-async def stored_messages(conversation_id: str) -> list[Message]:
+async def stored_messages(conversation_id: int) -> list[Message]:
     async with SessionLocal() as db:
         result = await db.execute(
             select(Message)
@@ -54,7 +55,7 @@ async def test_answer_cites_the_retrieved_chunk(client, fake_gemini):
     response = await ask(client, conversation_id, "How many leave days do I get?")
 
     assert response.status_code == 200, response.text
-    body = response.json()
+    body = response.json()["data"]
     assert body["answer"] == "You get 15 days of paid leave."
     assert body["insufficient_evidence"] is False
     assert [(c["document_id"], c["filename"]) for c in body["citations"]] == [
@@ -75,7 +76,7 @@ async def test_no_relevant_chunk_answers_insufficient_without_llm(client, fake_g
 
     response = await ask(client, conversation_id, "Where can I park my car? parking")
 
-    body = response.json()
+    body = response.json()["data"]
     assert response.status_code == 200
     assert body["answer"] == INSUFFICIENT_ANSWER
     assert body["insufficient_evidence"] is True
@@ -94,7 +95,7 @@ async def test_invented_source_is_dropped(client, fake_gemini):
         "used_sources": ["S9"],
     }
 
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     assert body["answer"] == INSUFFICIENT_ANSWER
     assert body["citations"] == []
@@ -110,7 +111,7 @@ async def test_llm_saying_not_answerable_gives_insufficient(client, fake_gemini)
         "used_sources": [],
     }
 
-    body = (await ask(client, conversation_id, "Is leave paid in cash?")).json()
+    body = (await ask(client, conversation_id, "Is leave paid in cash?")).json()["data"]
 
     assert body["answer"] == INSUFFICIENT_ANSWER
     assert body["insufficient_evidence"] is True
@@ -127,7 +128,7 @@ async def test_deleted_document_is_never_retrieved(client, fake_gemini):
         )
         await db.commit()
 
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     # Its chunks are still in Qdrant, but MySQL says the document is gone.
     assert qdrant_service.count_chunks(leave["id"]) == 1
@@ -151,13 +152,24 @@ async def test_only_the_active_version_is_retrieved(client, fake_gemini):
     )
     qdrant_service.upsert_chunks([v2], [fake_vector(v2.text)])
 
-    before = (await ask(client, conversation_id, "How many leave days?")).json()
+    before = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
     async with SessionLocal() as db:
+        version = DocumentVersion(
+            document_id=leave["id"],
+            version=2,
+            content_hash="v2",
+            status=DocumentStatus.INDEXED,
+            filename="leave.txt",
+        )
+        db.add(version)
+        await db.flush()
         await db.execute(
-            update(Document).where(Document.id == leave["id"]).values(active_version=2)
+            update(Document)
+            .where(Document.id == leave["id"])
+            .values(active_version_id=version.id)
         )
         await db.commit()
-    after = (await ask(client, conversation_id, "How many leave days?")).json()
+    after = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     assert {t["version"] for t in before["retrieval_trace"]} == {1}
     assert {t["version"] for t in after["retrieval_trace"]} == {2}
@@ -206,7 +218,7 @@ async def test_invalid_llm_json_returns_502(client, fake_gemini):
 
 
 async def test_unknown_conversation_is_404(client):
-    response = await ask(client, "does-not-exist", "How many leave days?")
+    response = await ask(client, 999999, "How many leave days?")
 
     assert response.status_code == 404
 
@@ -240,7 +252,7 @@ async def test_first_question_is_searched_as_is(client, fake_gemini):
     await upload(client, "leave.txt", LEAVE_TEXT)
     conversation_id = await new_conversation(client)
 
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     # No history yet, so there is nothing to rewrite.
     assert body["search_query"] == "How many leave days?"
@@ -253,7 +265,7 @@ async def test_follow_up_shows_rewritten_search_query(client, fake_gemini):
     await ask(client, conversation_id, "How many leave days?")
     fake_gemini.rewrite_to = "paid leave days per year"
 
-    body = (await ask(client, conversation_id, "And per year?")).json()
+    body = (await ask(client, conversation_id, "And per year?")).json()["data"]
 
     assert body["search_query"] == "paid leave days per year"
     assert fake_gemini.rewrite_calls == 1
@@ -265,12 +277,12 @@ async def test_failed_rewrite_shows_original_question(client, fake_gemini):
     await ask(client, conversation_id, "How many leave days?")
     fake_gemini.rewrite_error = LLMServiceError("LLM request failed (503)")
 
-    body = (await ask(client, conversation_id, "And per year?")).json()
+    body = (await ask(client, conversation_id, "And per year?")).json()["data"]
 
     assert body["search_query"] == "And per year?"
 
 
-async def history(client, conversation_id: str):
+async def history(client, conversation_id: int):
     return await client.get(f"/chat/{conversation_id}/history")
 
 
@@ -288,7 +300,7 @@ async def test_history_returns_messages_in_order_with_citations(client, fake_gem
     response = await history(client, conversation_id)
 
     assert response.status_code == 200
-    body = response.json()
+    body = response.json()["data"]
     assert body["conversation_id"] == conversation_id
     messages = body["messages"]
     assert [(m["role"], m["content"]) for m in messages] == [
@@ -308,11 +320,11 @@ async def test_history_of_new_conversation_is_empty(client):
     response = await history(client, conversation_id)
 
     assert response.status_code == 200
-    assert response.json()["messages"] == []
+    assert response.json()["data"]["messages"] == []
 
 
 async def test_history_of_unknown_conversation_is_404(client):
-    response = await history(client, "00000000-0000-0000-0000-000000000000")
+    response = await history(client, 999999)
 
     assert response.status_code == 404
 
@@ -324,7 +336,7 @@ async def test_trace_shows_source_and_whether_chunk_reached_the_prompt(
     await upload(client, "travel.txt", TRAVEL_TEXT)
     conversation_id = await new_conversation(client)
 
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     by_file = {t["filename"]: t for t in body["retrieval_trace"]}
     assert by_file["leave.txt"]["document_id"] == leave["id"]
@@ -347,7 +359,7 @@ async def test_history_used_counts_the_context_messages(client, fake_gemini):
     conversation_id = await new_conversation(client)
     await ask(client, conversation_id, "How many leave days?")
 
-    body = (await ask(client, conversation_id, "And leave per year?")).json()
+    body = (await ask(client, conversation_id, "And leave per year?")).json()["data"]
 
     assert body["history_used"] == 2
 
@@ -361,10 +373,10 @@ async def test_conversations_are_listed_most_recent_first(client, fake_gemini):
     response = await client.get("/conversations")
 
     assert response.status_code == 200
-    listed = {c["id"]: c for c in response.json()}
+    listed = {c["id"]: c for c in response.json()["data"]}
     assert listed[older]["message_count"] == 2
     assert listed[older]["title"] == "How many leave days?"
     assert listed[newer]["message_count"] == 0
-    ids = [c["id"] for c in response.json()]
+    ids = [c["id"] for c in response.json()["data"]]
     # The conversation with a new message moves above the empty one.
     assert ids.index(older) < ids.index(newer)

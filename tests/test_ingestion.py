@@ -20,7 +20,7 @@ async def test_upload_pdf_indexes_chunks_with_pages(client, fake_gemini):
     response = await upload(client, "policy.pdf", data, "application/pdf")
 
     assert response.status_code == 201, response.text
-    body = response.json()
+    body = response.json()["data"]
     document = body["document"]
     version = document["versions"][0]
     assert body["duplicate"] is False
@@ -40,32 +40,32 @@ async def test_upload_pdf_indexes_chunks_with_pages(client, fake_gemini):
 
 
 async def test_get_and_list_documents(client, fake_gemini):
-    created = (await upload(client, "leave.txt", b"15 days of leave.")).json()
+    created = (await upload(client, "leave.txt", b"15 days of leave.")).json()["data"]
     document_id = created["document"]["id"]
 
     one = await client.get(f"/documents/{document_id}")
     listed = await client.get("/documents")
 
     assert one.status_code == 200
-    assert one.json()["filename"] == "leave.txt"
-    assert document_id in [d["id"] for d in listed.json()]
+    assert one.json()["data"]["filename"] == "leave.txt"
+    assert document_id in [d["id"] for d in listed.json()["data"]]
 
 
 async def test_get_unknown_document_is_404(client):
-    response = await client.get("/documents/does-not-exist")
+    response = await client.get("/documents/999999")
 
     assert response.status_code == 404
 
 
 async def test_duplicate_upload_returns_existing_document(client, fake_gemini):
     data = b"Employees receive 15 days of paid leave per year."
-    first = (await upload(client, "leave.txt", data)).json()
+    first = (await upload(client, "leave.txt", data)).json()["data"]
 
     second = await upload(client, "renamed.txt", data)
 
     assert second.status_code == 200
-    assert second.json()["duplicate"] is True
-    assert second.json()["document"]["id"] == first["document"]["id"]
+    assert second.json()["data"]["duplicate"] is True
+    assert second.json()["data"]["document"]["id"] == first["document"]["id"]
     # Nothing was embedded or stored a second time.
     assert fake_gemini.embed_calls == 1
     assert qdrant_service.count_chunks(first["document"]["id"]) == 1
@@ -83,14 +83,14 @@ async def test_failed_file_can_be_uploaded_again(client, fake_gemini):
 
     assert failed.status_code == 422
     assert retry.status_code == 201
-    assert retry.json()["duplicate"] is False
+    assert retry.json()["data"]["duplicate"] is False
 
 
 async def test_scanned_pdf_fails_with_reason(client, fake_gemini):
     response = await upload(client, "scan.pdf", make_pdf(["", ""]), "application/pdf")
 
     assert response.status_code == 422
-    document = response.json()["document"]
+    document = response.json()["data"]["document"]
     assert document["status"] == "failed"
     assert document["active_version"] is None
     assert "OCR is not supported" in document["versions"][0]["error"]
@@ -105,21 +105,21 @@ async def test_gemini_failure_marks_failed_and_stores_nothing(client, fake_gemin
     response = await upload(client, "notes.txt", b"Some text to index.")
 
     assert response.status_code == 422
-    document = response.json()["document"]
+    document = response.json()["data"]["document"]
     assert document["status"] == "failed"
     assert "429" in document["versions"][0]["error"]
     assert qdrant_service.count_chunks(document["id"]) == 0
 
 
 async def test_unsupported_type_is_rejected(client, fake_gemini):
-    before = len((await client.get("/documents")).json())
+    before = len((await client.get("/documents")).json()["data"])
 
     response = await upload(client, "report.docx", b"PK fake docx")
 
     assert response.status_code == 400
     assert "Unsupported file type '.docx'" in response.json()["detail"]
     # Rejected before any document row was created.
-    assert len((await client.get("/documents")).json()) == before
+    assert len((await client.get("/documents")).json()["data"]) == before
 
 
 async def test_fake_pdf_is_rejected(client):
@@ -148,4 +148,4 @@ async def test_file_over_size_limit_is_rejected(client, fake_gemini, monkeypatch
 async def test_client_path_is_stripped_from_filename(client, fake_gemini):
     response = await upload(client, "C:\\Users\\me\\leave.txt", b"15 days of leave.")
 
-    assert response.json()["document"]["filename"] == "leave.txt"
+    assert response.json()["data"]["document"]["filename"] == "leave.txt"

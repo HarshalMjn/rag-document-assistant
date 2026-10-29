@@ -37,17 +37,17 @@ async def test_leave_policy_update_from_15_to_20_days(client, fake_gemini):
 
     before = (
         await ask(client, conversation_id, "How many days of annual leave?")
-    ).json()
+    ).json()["data"]
     assert "15 days" in fake_gemini.last_prompt["messages"][-1]["content"]
     assert {t["version"] for t in before["retrieval_trace"]} == {1}
 
     response = await put(client, policy["id"], "policy.txt", LEAVE_20)
     assert response.status_code == 200
-    assert response.json()["document"]["id"] == policy["id"]
+    assert response.json()["data"]["document"]["id"] == policy["id"]
 
     after = (
         await ask(client, conversation_id, "How many days of annual leave?")
-    ).json()
+    ).json()["data"]
     prompt = fake_gemini.last_prompt["messages"][-1]["content"]
     # Only the new version reaches the LLM; no stale chunk is retrieved.
     assert "20 days" in prompt
@@ -87,7 +87,7 @@ async def test_answer_cites_both_sources(client, fake_gemini):
 
     body = (
         await ask(client, conversation_id, "What are the leave and travel rules?")
-    ).json()
+    ).json()["data"]
 
     # Evidence from both documents reached the LLM, and both are cited.
     prompt = fake_gemini.last_prompt["messages"][-1]["content"]

@@ -16,7 +16,7 @@ V2_TEXT = b"Employees receive 20 days of paid leave per year."
 
 
 async def put(
-    client, document_id: str, filename: str, data: bytes, content_type="text/plain"
+    client, document_id: int, filename: str, data: bytes, content_type="text/plain"
 ):
     return await client.put(
         f"/documents/{document_id}", files={"file": (filename, data, content_type)}
@@ -29,7 +29,7 @@ async def test_update_indexes_a_new_version_and_removes_the_old(client, fake_gem
     response = await put(client, document["id"], "leave.txt", V2_TEXT)
 
     assert response.status_code == 200, response.text
-    body = response.json()
+    body = response.json()["data"]
     updated = body["document"]
     assert body["duplicate"] is False
     assert updated["id"] == document["id"]
@@ -48,7 +48,7 @@ async def test_chat_after_update_uses_only_the_new_content(client, fake_gemini):
     await put(client, document["id"], "leave.txt", V2_TEXT)
     conversation_id = await new_conversation(client)
 
-    body = (await ask(client, conversation_id, "How many leave days?")).json()
+    body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     assert {t["version"] for t in body["retrieval_trace"]} == {2}
     prompt = fake_gemini.last_prompt["messages"][-1]["content"]
@@ -86,7 +86,7 @@ async def test_unchanged_content_is_not_reindexed(client, fake_gemini):
     response = await put(client, document["id"], "leave.txt", V1_TEXT)
 
     assert response.status_code == 200
-    body = response.json()
+    body = response.json()["data"]
     assert body["duplicate"] is True
     assert body["document"]["active_version"] == 1
     assert len(body["document"]["versions"]) == 1
@@ -100,7 +100,7 @@ async def test_failed_update_keeps_the_old_version_live(client, fake_gemini):
     response = await put(client, document["id"], "new-leave.txt", V2_TEXT)
 
     assert response.status_code == 422
-    updated = response.json()["document"]
+    updated = response.json()["data"]["document"]
     assert updated["status"] == "indexed"
     assert updated["active_version"] == 1
     # The name only changes once a new version is indexed.
@@ -121,7 +121,7 @@ async def test_version_after_a_failed_update_gets_the_next_number(client, fake_g
     response = await put(client, document["id"], "leave.txt", V2_TEXT)
 
     assert response.status_code == 200
-    updated = response.json()["document"]
+    updated = response.json()["data"]["document"]
     assert updated["active_version"] == 3
     assert [v["status"] for v in updated["versions"]] == [
         "indexed",
@@ -138,7 +138,7 @@ async def test_update_can_change_name_and_type(client, fake_gemini):
     response = await put(client, document["id"], "leave.pdf", pdf, "application/pdf")
 
     assert response.status_code == 200, response.text
-    assert response.json()["document"]["filename"] == "leave.pdf"
+    assert response.json()["data"]["document"]["filename"] == "leave.pdf"
     points, _ = qdrant_service.qdrant_client.scroll(
         settings.QDRANT_COLLECTION, limit=10, with_payload=True
     )
@@ -147,7 +147,7 @@ async def test_update_can_change_name_and_type(client, fake_gemini):
 
 
 async def test_update_of_unknown_document_is_404(client):
-    response = await put(client, "does-not-exist", "leave.txt", V2_TEXT)
+    response = await put(client, 999999, "leave.txt", V2_TEXT)
 
     assert response.status_code == 404
 
