@@ -65,7 +65,6 @@ def ensure_collection() -> None:
     )
 
 
-
 _CHUNK_ID_NAMESPACE = uuid.UUID("6f1c2a52-3c1e-4c55-9a43-1d0b6c2f8e17")
 _UPSERT_BATCH_SIZE = 100
 

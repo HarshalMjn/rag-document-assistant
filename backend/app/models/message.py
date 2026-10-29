@@ -23,9 +23,7 @@ class MessageRole(enum.StrEnum):
 
 class Message(Base):
     __tablename__ = "messages"
-    __table_args__ = (
-        Index("ix_messages_conversation_id_id", "conversation_id", "id"),
-    )
+    __table_args__ = (Index("ix_messages_conversation_id_id", "conversation_id", "id"),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     conversation_id = Column(

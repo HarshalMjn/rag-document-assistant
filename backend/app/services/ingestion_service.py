@@ -17,7 +17,9 @@ from app.services.gemini_service import GeminiService, GeminiServiceError
 
 logger = logging.getLogger(__name__)
 
-INTERRUPTED_ERROR = "Indexing was interrupted by a server restart; upload the file again"
+INTERRUPTED_ERROR = (
+    "Indexing was interrupted by a server restart; upload the file again"
+)
 
 
 class UpdateConflictError(Exception):
@@ -242,7 +244,9 @@ class IngestionService:
             .limit(1)
         )
         document_id = result.scalar_one_or_none()
-        return await cls.get_document(db, document_id) if document_id is not None else None
+        return (
+            await cls.get_document(db, document_id) if document_id is not None else None
+        )
 
     @classmethod
     async def get_document(cls, db: AsyncSession, document_id: int) -> Document | None:
@@ -261,7 +265,9 @@ class IngestionService:
     ) -> tuple[int, int]:
         """Run the pipeline. Returns (chunk_count, pages with text)."""
         # Parsing and Qdrant calls are blocking, so they run in a thread pool.
-        pages = await run_in_threadpool(ExtractionService.extract, data, version.filename)
+        pages = await run_in_threadpool(
+            ExtractionService.extract, data, version.filename
+        )
         chunks = ChunkingService.chunk_pages(pages)
 
         payloads = [

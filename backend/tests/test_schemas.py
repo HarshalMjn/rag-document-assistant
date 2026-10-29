@@ -47,7 +47,14 @@ def test_message_out_from_model():
         id=7,
         role=MessageRole.ASSISTANT,
         content="Annual leave is 20 days.",
-        citations=[{"document_id": 1, "filename": "leave_policy.txt", "page": 1, "chunk_id": "c1"}],
+        citations=[
+            {
+                "document_id": 1,
+                "filename": "leave_policy.txt",
+                "page": 1,
+                "chunk_id": "c1",
+            }
+        ],
         created_at=NOW,
     )
 
