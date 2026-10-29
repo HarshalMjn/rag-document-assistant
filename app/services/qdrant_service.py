@@ -56,7 +56,7 @@ def ensure_collection() -> None:
     qdrant_client.create_payload_index(
         collection_name=name,
         field_name="document_id",
-        field_schema=models.PayloadSchemaType.KEYWORD,
+        field_schema=models.PayloadSchemaType.INTEGER,
     )
     qdrant_client.create_payload_index(
         collection_name=name,
@@ -70,14 +70,14 @@ _CHUNK_ID_NAMESPACE = uuid.UUID("6f1c2a52-3c1e-4c55-9a43-1d0b6c2f8e17")
 _UPSERT_BATCH_SIZE = 100
 
 
-def make_chunk_id(document_id: str, version: int, chunk_index: int) -> str:
+def make_chunk_id(document_id: int, version: int, chunk_index: int) -> str:
     """Deterministic point ID: re-indexing the same version overwrites instead of duplicating."""
     return str(
         uuid.uuid5(_CHUNK_ID_NAMESPACE, f"{document_id}:{version}:{chunk_index}")
     )
 
 
-def _document_filter(document_id: str, version: int | None = None) -> models.Filter:
+def _document_filter(document_id: int, version: int | None = None) -> models.Filter:
     conditions = [
         models.FieldCondition(
             key="document_id", match=models.MatchValue(value=document_id)
@@ -107,7 +107,7 @@ def upsert_chunks(payloads: list[ChunkPayload], vectors: list[list[float]]) -> N
         )
 
 
-def count_chunks(document_id: str, version: int | None = None) -> int:
+def count_chunks(document_id: int, version: int | None = None) -> int:
     """Number of stored chunks for a document, or for one version of it."""
     return qdrant_client.count(
         collection_name=settings.QDRANT_COLLECTION,
@@ -116,7 +116,7 @@ def count_chunks(document_id: str, version: int | None = None) -> int:
     ).count
 
 
-def delete_version(document_id: str, version: int) -> None:
+def delete_version(document_id: int, version: int) -> None:
     """Remove one version's chunks, e.g. the old version after an update succeeds."""
     qdrant_client.delete(
         collection_name=settings.QDRANT_COLLECTION,
@@ -127,7 +127,7 @@ def delete_version(document_id: str, version: int) -> None:
     )
 
 
-def delete_document(document_id: str) -> None:
+def delete_document(document_id: int) -> None:
     """Remove every chunk of a document, across all versions."""
     qdrant_client.delete(
         collection_name=settings.QDRANT_COLLECTION,
@@ -144,7 +144,7 @@ class SearchHit:
 
 def search(
     vector: list[float],
-    active_versions: list[tuple[str, int]],
+    active_versions: list[tuple[int, int]],
     top_k: int,
 ) -> list[SearchHit]:
     """Return the `top_k` most similar chunks, best first.

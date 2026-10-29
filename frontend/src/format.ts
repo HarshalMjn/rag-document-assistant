@@ -17,8 +17,8 @@ export function relativeTime(value: string, now = Date.now()): string {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-export function shortId(id: string): string {
-  return id.slice(0, 8);
+export function shortId(id: number): string {
+  return String(id);
 }
 
 export function shortHash(hash: string): string {

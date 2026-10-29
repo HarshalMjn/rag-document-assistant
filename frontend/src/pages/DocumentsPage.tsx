@@ -170,7 +170,7 @@ export function DocumentsPage() {
                           </div>
                         )}
                       </td>
-                      <td className="mono small" style={{ color: "var(--text-2)" }} title={d.id}>
+                      <td className="mono small" style={{ color: "var(--text-2)" }} title={String(d.id)}>
                         doc_{shortId(d.id)}
                       </td>
                       <td>

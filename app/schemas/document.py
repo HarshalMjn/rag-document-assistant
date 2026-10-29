@@ -12,6 +12,7 @@ class DocumentVersionOut(BaseModel):
     content_hash: str
     status: DocumentStatus
     error: str | None = None
+    filename: str | None = None
     mime_type: str | None = None
     file_size: int | None = None
     page_count: int | None = None
@@ -23,7 +24,7 @@ class DocumentVersionOut(BaseModel):
 class DocumentOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
+    id: int
     filename: str
     source_type: SourceType
     source_url: str | None = None
@@ -36,11 +37,10 @@ class DocumentOut(BaseModel):
 
 class DocumentUploadResponse(BaseModel):
     document: DocumentOut
-    # True when the uploaded bytes matched an already indexed version, so nothing was re-indexed.
     duplicate: bool = False
 
 
 class DocumentDeleteResponse(BaseModel):
-    id: str
+    id: int
     deleted: bool
     chunks_removed: int

@@ -8,12 +8,11 @@ class ChunkPayload(BaseModel):
     remove every chunk of a document.
     """
 
-    document_id: str
+    document_id: int
     version: int
     chunk_id: str
     chunk_index: int
     filename: str
-    # Null for sources without pages (TXT, URL).
     page: int | None = None
     content_hash: str
     source_url: str | None = None

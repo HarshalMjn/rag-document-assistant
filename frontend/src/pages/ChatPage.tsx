@@ -9,7 +9,8 @@ import { contextWindow, relativeTime, shortId } from "../format";
 import { useAppData } from "../state";
 
 export function ChatPage() {
-  const { conversationId } = useParams();
+  const params = useParams();
+  const conversationId = params.conversationId ? Number(params.conversationId) : undefined;
   const navigate = useNavigate();
   const { config, traces, addTrace } = useAppData();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);

@@ -16,7 +16,6 @@ import json
 import re
 import statistics
 import time
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,7 +57,7 @@ def tokens(chars: int) -> int:
 
 @dataclass
 class Indexed:
-    document_ids: dict[str, str]
+    document_ids: dict[str, int]
     chunks: int
     chars: int
     timings: dict[str, dict[str, int]]
@@ -71,8 +70,7 @@ async def index(config: str, size: int, overlap: int) -> Indexed:
 
     document_ids, timings = {}, {}
     total_chunks = total_chars = 0
-    for filename in SAMPLE_FILES:
-        document_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"eval/{filename}"))
+    for document_id, filename in enumerate(SAMPLE_FILES, start=1):
         document_ids[filename] = document_id
         data = (SAMPLES / filename).read_bytes()
 

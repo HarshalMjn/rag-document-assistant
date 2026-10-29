@@ -13,7 +13,7 @@ import { api, type ChatResponse, type Config, type DocumentOut, type Health, typ
 /** One answered question with everything the Trace page shows about it. */
 export interface TraceEntry {
   key: string;
-  conversationId: string;
+  conversationId: number;
   question: string;
   response: ChatResponse;
   // The conversation's messages before this question, oldest first.

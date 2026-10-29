@@ -15,19 +15,19 @@ NOW = datetime(2026, 1, 1, 12, 0, 0)
 
 def test_document_out_from_model():
     version = DocumentVersion(
+        id=10,
         version=1,
         content_hash="a" * 64,
         status=DocumentStatus.INDEXED,
+        filename="leave_policy.txt",
+        source_type=SourceType.FILE,
         chunk_count=3,
         created_at=NOW,
         updated_at=NOW,
     )
     document = Document(
-        id="doc-1",
-        filename="leave_policy.txt",
-        source_type=SourceType.FILE,
-        status=DocumentStatus.INDEXED,
-        active_version=1,
+        id=1,
+        active_version_id=10,
         created_at=NOW,
         updated_at=NOW,
         versions=[version],
@@ -35,7 +35,8 @@ def test_document_out_from_model():
 
     out = DocumentOut.model_validate(document)
 
-    assert out.id == "doc-1"
+    assert out.id == 1
+    assert out.filename == "leave_policy.txt"
     assert out.status == "indexed"
     assert out.active_version == 1
     assert out.versions[0].chunk_count == 3
@@ -46,7 +47,7 @@ def test_message_out_from_model():
         id=7,
         role=MessageRole.ASSISTANT,
         content="Annual leave is 20 days.",
-        citations=[{"document_id": "doc-1", "filename": "leave_policy.txt", "page": 1, "chunk_id": "c1"}],
+        citations=[{"document_id": 1, "filename": "leave_policy.txt", "page": 1, "chunk_id": "c1"}],
         created_at=NOW,
     )
 
@@ -58,9 +59,9 @@ def test_message_out_from_model():
 
 def test_chunk_payload_round_trips_through_qdrant_dict():
     payload = ChunkPayload(
-        document_id="doc-1",
+        document_id=1,
         version=2,
-        chunk_id="doc-1:2:0",
+        chunk_id="1:2:0",
         chunk_index=0,
         filename="leave_policy.txt",
         content_hash="b" * 64,

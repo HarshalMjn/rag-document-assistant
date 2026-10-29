@@ -1,7 +1,6 @@
 import enum
-import uuid
 
-from sqlalchemy import Column, DateTime, Enum, Integer, String, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, func
 from sqlalchemy.orm import relationship
 
 from app.config.database import Base
@@ -22,26 +21,61 @@ class SourceType(enum.StrEnum):
 class Document(Base):
     __tablename__ = "documents"
 
-    # Stable document_id: stays the same across updates, so PUT/DELETE target the exact document.
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    filename = Column(String(255), nullable=False)
-    source_type = Column(Enum(SourceType), nullable=False, default=SourceType.FILE)
-    source_url = Column(String(2048), nullable=True)
-    status = Column(
-        Enum(DocumentStatus), nullable=False, default=DocumentStatus.UPLOADED
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    active_version_id = Column(
+        Integer,
+        ForeignKey(
+            "document_versions.id",
+            name="fk_documents_active_version_id",
+            ondelete="SET NULL",
+            use_alter=True,
+        ),
+        nullable=True,
     )
-    # Only chunks of this version are retrievable; null until the first version is indexed.
-    active_version = Column(Integer, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
     )
     deleted_at = Column(DateTime, nullable=True, index=True)
 
-    # Relationships
     versions = relationship(
         "DocumentVersion",
         back_populates="document",
         cascade="all, delete-orphan",
         order_by="DocumentVersion.version",
+        foreign_keys="DocumentVersion.document_id",
     )
+
+    @property
+    def active(self):
+        return next((v for v in self.versions if v.id == self.active_version_id), None)
+
+    @property
+    def latest(self):
+        return self.versions[-1] if self.versions else None
+
+    @property
+    def current(self):
+        return self.active or self.latest
+
+    @property
+    def active_version(self) -> int | None:
+        return self.active.version if self.active else None
+
+    @property
+    def status(self) -> DocumentStatus:
+        if self.active:
+            return DocumentStatus.INDEXED
+        return self.latest.status if self.latest else DocumentStatus.UPLOADED
+
+    @property
+    def filename(self) -> str | None:
+        return self.current.filename if self.current else None
+
+    @property
+    def source_type(self) -> SourceType:
+        return self.current.source_type if self.current else SourceType.FILE
+
+    @property
+    def source_url(self) -> str | None:
+        return self.current.source_url if self.current else None

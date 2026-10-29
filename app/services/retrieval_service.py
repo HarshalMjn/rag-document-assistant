@@ -6,6 +6,7 @@ from starlette.concurrency import run_in_threadpool
 
 from app.config.settings import settings
 from app.models.document import Document
+from app.models.document_version import DocumentVersion
 from app.services import qdrant_service
 from app.services.gemini_service import GeminiService
 from app.services.qdrant_service import SearchHit
@@ -48,15 +49,15 @@ class RetrievalService:
         return RetrievalResult(hits=hits, evidence=evidence)
 
     @classmethod
-    async def active_versions(cls, db: AsyncSession) -> list[tuple[str, int]]:
+    async def active_versions(cls, db: AsyncSession) -> list[tuple[int, int]]:
         """(document_id, active_version) for every non-deleted document that has a live version.
 
         MySQL is the source of truth for what is live; Qdrant only stores the chunks.
         """
+        # Qdrant payloads carry the version number, so map the active version row to it.
         result = await db.execute(
-            select(Document.id, Document.active_version).where(
-                Document.deleted_at.is_(None),
-                Document.active_version.is_not(None),
-            )
+            select(Document.id, DocumentVersion.version)
+            .join(DocumentVersion, DocumentVersion.id == Document.active_version_id)
+            .where(Document.deleted_at.is_(None))
         )
         return [(document_id, version) for document_id, version in result.all()]

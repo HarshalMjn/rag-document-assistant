@@ -44,16 +44,14 @@ class IngestionService:
             logger.info("Duplicate upload of document %s", existing.id)
             return existing, True
 
-        document = Document(
-            filename=filename,
-            source_type=SourceType.FILE,
-            status=DocumentStatus.UPLOADED,
-        )
+        document = Document()
         version = DocumentVersion(
             document=document,
             version=1,
             content_hash=content_hash,
             status=DocumentStatus.UPLOADED,
+            filename=filename,
+            source_type=SourceType.FILE,
             mime_type=mime_type,
             file_size=len(data),
         )
@@ -81,7 +79,7 @@ class IngestionService:
         """
         content_hash = hashlib.sha256(data).hexdigest()
         previous = document.active_version
-        active = next((v for v in document.versions if v.version == previous), None)
+        active = document.active
         if active is not None and active.content_hash == content_hash:
             logger.info("Update of document %s has unchanged content", document.id)
             return document, True
@@ -93,6 +91,8 @@ class IngestionService:
             version=number,
             content_hash=content_hash,
             status=DocumentStatus.UPLOADED,
+            filename=filename,
+            source_type=SourceType.FILE,
             mime_type=mime_type,
             file_size=len(data),
         )
@@ -104,7 +104,7 @@ class IngestionService:
             await db.rollback()
             raise UpdateConflictError(document.id) from e
 
-        await cls.index_version(db, document, version, data, filename=filename)
+        await cls.index_version(db, document, version, data)
         if version.status == DocumentStatus.INDEXED and previous is not None:
             await cls._remove_old_version(document.id, previous)
         return await cls.get_document(db, document.id), False
@@ -149,25 +149,17 @@ class IngestionService:
         document: Document,
         version: DocumentVersion,
         data: bytes,
-        filename: str | None = None,
     ) -> None:
         """Extract, chunk, embed and store one version, then make it the active version.
 
         On failure the version is marked failed and its partial chunks are removed.
         A previously active version is left untouched, so a failed update keeps it live.
-        `filename` (defaults to the document's) names the new file; it replaces the
-        document's filename only once the version is indexed.
         """
-        filename = filename or document.filename
         version.status = DocumentStatus.PROCESSING
-        if document.active_version is None:
-            document.status = DocumentStatus.PROCESSING
         await db.commit()
 
         try:
-            chunk_count, page_count = await cls._index(
-                document, version, data, filename
-            )
+            chunk_count, page_count = await cls._index(document, version, data)
         except Exception as e:
             await cls._mark_failed(db, document, version, e)
             return
@@ -177,9 +169,7 @@ class IngestionService:
         version.chunk_count = chunk_count
         version.page_count = page_count
         # Switched only after every chunk is stored, so retrieval never sees a half-indexed version.
-        document.active_version = version.version
-        document.filename = filename
-        document.status = DocumentStatus.INDEXED
+        document.active_version_id = version.id
         await db.commit()
         logger.info(
             "Indexed document %s v%s: %s chunks",
@@ -202,7 +192,7 @@ class IngestionService:
                 DocumentVersion,
                 and_(
                     DocumentVersion.document_id == Document.id,
-                    DocumentVersion.version == Document.active_version,
+                    DocumentVersion.id == Document.active_version_id,
                 ),
             )
             .where(
@@ -212,10 +202,10 @@ class IngestionService:
             .limit(1)
         )
         document_id = result.scalar_one_or_none()
-        return await cls.get_document(db, document_id) if document_id else None
+        return await cls.get_document(db, document_id) if document_id is not None else None
 
     @classmethod
-    async def get_document(cls, db: AsyncSession, document_id: str) -> Document | None:
+    async def get_document(cls, db: AsyncSession, document_id: int) -> Document | None:
         """Load a non-deleted document with its versions."""
         result = await db.execute(
             select(Document)
@@ -227,11 +217,11 @@ class IngestionService:
 
     @classmethod
     async def _index(
-        cls, document: Document, version: DocumentVersion, data: bytes, filename: str
+        cls, document: Document, version: DocumentVersion, data: bytes
     ) -> tuple[int, int]:
         """Run the pipeline. Returns (chunk_count, pages with text)."""
         # Parsing and Qdrant calls are blocking, so they run in a thread pool.
-        pages = await run_in_threadpool(ExtractionService.extract, data, filename)
+        pages = await run_in_threadpool(ExtractionService.extract, data, version.filename)
         chunks = ChunkingService.chunk_pages(pages)
 
         payloads = [
@@ -242,10 +232,10 @@ class IngestionService:
                     document.id, version.version, chunk.chunk_index
                 ),
                 chunk_index=chunk.chunk_index,
-                filename=filename,
+                filename=version.filename,
                 page=chunk.page,
                 content_hash=version.content_hash,
-                source_url=document.source_url,
+                source_url=version.source_url,
                 text=chunk.text,
             )
             for chunk in chunks
@@ -299,7 +289,5 @@ class IngestionService:
 
         version.status = DocumentStatus.FAILED
         version.error = reason
-        # With an older active version (an update), the document stays indexed on that version.
-        if document.active_version is None:
-            document.status = DocumentStatus.FAILED
+        # active_version_id is untouched: after a failed update the old version stays live.
         await db.commit()
