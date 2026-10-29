@@ -432,8 +432,8 @@ async def main():
         json.dumps(
             {
                 "min_score": settings.MIN_SCORE,
-                "llm_model": settings.LLM_MODEL,
-                "rewrite_model": settings.REWRITE_MODEL,
+                "llm_model": settings.CHAT_ANSWER_MODEL,
+                "rewrite_model": settings.CHAT_REWRITE_MODEL,
                 "embedding_model": settings.EMBEDDING_MODEL,
                 "summaries": summaries,
                 "runs": runs,

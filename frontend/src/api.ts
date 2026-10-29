@@ -183,8 +183,8 @@ function isUploadResponse(body: unknown): body is UploadResponse {
 }
 
 export const api = {
-  health: () => request<Health>("/health"),
-  config: () => request<Config>("/config"),
+  health: () => request<{ data: Health }>("/health").then((r) => r.data),
+  config: () => request<{ data: Config }>("/config").then((r) => r.data),
   documents: () => request<DocumentOut[]>("/documents"),
   upload: (file: File) => uploadRequest("/documents", "POST", file),
   replace: (id: string, file: File) => uploadRequest(`/documents/${id}`, "PUT", file),

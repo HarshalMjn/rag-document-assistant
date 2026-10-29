@@ -85,8 +85,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         (e) =>
           !cancelled &&
           setHealth(
-            e?.body && typeof e.body === "object" && "status" in e.body
-              ? (e.body as Health)
+            e?.body?.data && typeof e.body.data === "object" && "status" in e.body.data
+              ? (e.body.data as Health)
               : null,
           ),
       );

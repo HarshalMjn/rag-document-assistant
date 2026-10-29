@@ -47,7 +47,7 @@ async def test_rewrite_uses_the_rewrite_model(client, fake_gemini):
 
     await ask(client, conversation_id, "And per year?")
 
-    assert fake_gemini.last_rewrite_model == settings.REWRITE_MODEL
+    assert fake_gemini.last_rewrite_model == settings.CHAT_REWRITE_MODEL
 
 
 async def test_empty_rewrite_searches_the_original_question(client, fake_gemini):

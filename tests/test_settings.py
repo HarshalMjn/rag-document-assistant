@@ -14,9 +14,9 @@ def test_defaults():
     assert s.MAX_UPLOAD_MB == 10
     assert s.HISTORY_LIMIT == 10
     assert s.EMBEDDING_BATCH_SIZE == 100
-    assert s.LLM_BASE_URL == "https://api.groq.com/openai/v1"
-    assert s.LLM_MODEL == "openai/gpt-oss-120b"
-    assert s.REWRITE_MODEL == "openai/gpt-oss-20b"
+    assert s.CHAT_LLM_BASE_URL == "https://api.groq.com/openai/v1"
+    assert s.CHAT_ANSWER_MODEL == "openai/gpt-oss-120b"
+    assert s.CHAT_REWRITE_MODEL == "openai/gpt-oss-20b"
 
 
 def test_overlap_must_be_smaller_than_chunk_size():

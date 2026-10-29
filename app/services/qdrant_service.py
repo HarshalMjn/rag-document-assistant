@@ -53,7 +53,6 @@ def ensure_collection() -> None:
             distance=models.Distance.COSINE,
         ),
     )
-    # Retrieval filters on these fields to exclude stale versions and deleted documents.
     qdrant_client.create_payload_index(
         collection_name=name,
         field_name="document_id",
@@ -66,7 +65,7 @@ def ensure_collection() -> None:
     )
 
 
-# Fixed namespace so the same (document_id, version, chunk_index) always maps to the same point ID.
+
 _CHUNK_ID_NAMESPACE = uuid.UUID("6f1c2a52-3c1e-4c55-9a43-1d0b6c2f8e17")
 _UPSERT_BATCH_SIZE = 100
 

@@ -23,7 +23,7 @@ def provider(monkeypatch):
         seen.append(json.loads(request.content))
         return replies.pop(0)
 
-    monkeypatch.setattr(settings, "LLM_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "CHAT_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
         LLMService,
         "_client",
@@ -50,7 +50,7 @@ async def test_schema_requests_json_mode_and_describes_shape(provider):
     assert StandaloneQuery.model_validate_json(raw).query == "sick leave days"
     body = seen[0]
     assert body["response_format"] == {"type": "json_object"}
-    assert body["model"] == settings.LLM_MODEL
+    assert body["model"] == settings.CHAT_ANSWER_MODEL
     assert body["messages"][0]["role"] == "system"
     assert '"query"' in body["messages"][0]["content"]
     assert body["messages"][1] == {"role": "user", "content": "q"}
@@ -94,8 +94,8 @@ async def test_bad_key_is_not_retried(provider):
 
 
 async def test_missing_key_fails_without_a_request(monkeypatch):
-    monkeypatch.setattr(settings, "LLM_API_KEY", "")
+    monkeypatch.setattr(settings, "CHAT_LLM_API_KEY", "")
     monkeypatch.setattr(LLMService, "_client", None)
 
-    with pytest.raises(LLMServiceError, match="LLM_API_KEY is not set"):
+    with pytest.raises(LLMServiceError, match="CHAT_LLM_API_KEY is not set"):
         await LLMService.generate("s", [])

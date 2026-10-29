@@ -39,12 +39,12 @@ class LLMService:
 
     @classmethod
     def _get_client(cls) -> httpx.AsyncClient:
-        if not settings.LLM_API_KEY:
-            raise LLMServiceError("LLM_API_KEY is not set")
+        if not settings.CHAT_LLM_API_KEY:
+            raise LLMServiceError("CHAT_LLM_API_KEY is not set")
         if cls._client is None:
             cls._client = httpx.AsyncClient(
-                base_url=settings.LLM_BASE_URL.rstrip("/"),
-                headers={"Authorization": f"Bearer {settings.LLM_API_KEY}"},
+                base_url=settings.CHAT_LLM_BASE_URL.rstrip("/"),
+                headers={"Authorization": f"Bearer {settings.CHAT_LLM_API_KEY}"},
                 timeout=_REQUEST_TIMEOUT_S,
             )
         return cls._client
@@ -63,11 +63,11 @@ class LLMService:
         With `response_schema` (a Pydantic model) the reply is a JSON object. JSON mode works on
         every OpenAI-compatible provider but does not enforce the shape, so the schema is also
         described in the system instruction and callers validate the reply.
-        `model` defaults to LLM_MODEL.
+        `model` defaults to CHAT_ANSWER_MODEL.
         """
         system = system_instruction
         body: dict = {
-            "model": model or settings.LLM_MODEL,
+            "model": model or settings.CHAT_ANSWER_MODEL,
             "temperature": temperature,
         }
         if response_schema is not None:

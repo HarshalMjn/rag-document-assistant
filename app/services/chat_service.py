@@ -199,7 +199,7 @@ class ChatService:
                 system,
                 messages,
                 response_schema=StandaloneQuery,
-                model=settings.REWRITE_MODEL,
+                model=settings.CHAT_REWRITE_MODEL,
             )
             query = StandaloneQuery.model_validate_json(raw).query.strip()
         except (LLMServiceError, ValidationError) as e:
