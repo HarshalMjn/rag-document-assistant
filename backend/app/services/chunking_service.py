@@ -3,13 +3,11 @@ from dataclasses import dataclass
 from app.config.settings import settings
 from app.services.extraction_service import ExtractedPage
 
-# Tried in order: paragraphs, lines, sentences, words, then a hard cut.
 _SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
 
 
 @dataclass(frozen=True)
 class Chunk:
-    # Position across the whole document, so chunks keep a stable order.
     chunk_index: int
     page: int | None
     text: str
@@ -47,7 +45,6 @@ class ChunkingService:
         if sep == "":
             return [text[i : i + size] for i in range(0, len(text), size)]
 
-        # Keep the separator on the end of each part, so joining pieces restores the text.
         parts = text.split(sep)
         parts = [p + sep for p in parts[:-1]] + [parts[-1]]
 

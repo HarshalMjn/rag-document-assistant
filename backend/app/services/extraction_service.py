@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt"}
 
-# Three or more newlines (possibly with spaces between) collapse to one blank line.
 _EXTRA_BLANK_LINES = re.compile(r"\n\s*\n\s*\n+")
 _TRAILING_SPACES = re.compile(r"[ \t]+\n")
 
@@ -21,7 +20,6 @@ class ExtractionError(Exception):
 
 @dataclass(frozen=True)
 class ExtractedPage:
-    # 1-based page number for PDFs; None for sources without pages (TXT).
     page: int | None
     text: str
 
@@ -46,7 +44,6 @@ class ExtractionService:
 
         if not pages:
             if extension == ".pdf":
-                # No OCR: scanned PDFs are images, so they have no text layer.
                 raise ExtractionError(
                     "No extractable text found. The PDF may be scanned or image-only (OCR is not supported)"
                 )

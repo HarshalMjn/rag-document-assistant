@@ -88,7 +88,6 @@ class IngestionService:
             logger.info("Update of document %s has unchanged content", document.id)
             return document, True
 
-        # Failed versions keep their numbers, so the next one is always above all of them.
         number = max((v.version for v in document.versions), default=0) + 1
         version = DocumentVersion(
             document=document,
@@ -104,7 +103,6 @@ class IngestionService:
         try:
             await db.commit()
         except IntegrityError as e:
-            # A parallel update took this number (unique per document); let the caller retry.
             await db.rollback()
             raise UpdateConflictError(document.id) from e
 
@@ -216,7 +214,6 @@ class IngestionService:
         version.error = None
         version.chunk_count = chunk_count
         version.page_count = page_count
-        # Switched only after every chunk is stored, so retrieval never sees a half-indexed version.
         document.active_version_id = version.id
         await db.commit()
         logger.info(
@@ -352,5 +349,4 @@ class IngestionService:
 
         version.status = DocumentStatus.FAILED
         version.error = reason
-        # active_version_id is untouched: after a failed update the old version stays live.
         await db.commit()
