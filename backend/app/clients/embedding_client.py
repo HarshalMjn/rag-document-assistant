@@ -20,19 +20,19 @@ _RETRY_OPTIONS = types.HttpRetryOptions(
 )
 
 
-class GeminiServiceError(Exception):
+class EmbeddingClientError(Exception):
     """Any failure talking to Gemini. Messages never include the API key."""
 
 
-class GeminiService:
-    """Embeddings only. Chat answers and rewrites go through LLMService."""
+class EmbeddingClient:
+    """Embeddings only. Chat answers and rewrites go through LLMClient."""
 
     _client: genai.Client | None = None
 
     @classmethod
     def _get_client(cls) -> genai.Client:
         if not settings.GEMINI_API_KEY:
-            raise GeminiServiceError("GEMINI_API_KEY is not set")
+            raise EmbeddingClientError("GEMINI_API_KEY is not set")
         if cls._client is None:
             cls._client = genai.Client(
                 api_key=settings.GEMINI_API_KEY,
@@ -76,19 +76,19 @@ class GeminiService:
 
         embeddings = response.embeddings or []
         if len(embeddings) != len(texts):
-            raise GeminiServiceError(
+            raise EmbeddingClientError(
                 f"Gemini returned {len(embeddings)} embeddings for {len(texts)} texts"
             )
         vectors = [e.values or [] for e in embeddings]
         if any(len(v) != settings.EMBEDDING_DIMENSIONS for v in vectors):
-            raise GeminiServiceError(
+            raise EmbeddingClientError(
                 f"Gemini returned embeddings with unexpected dimensions (expected {settings.EMBEDDING_DIMENSIONS})"
             )
         return vectors
 
     @classmethod
     async def _call(cls, operation: str, request):
-        """Await a Gemini request and convert every failure into GeminiServiceError."""
+        """Await a Gemini request and convert every failure into EmbeddingClientError."""
         try:
             return await request
         except errors.APIError as e:
@@ -96,9 +96,9 @@ class GeminiService:
             logger.warning(
                 "Gemini %s request failed: %s %s", operation, e.code, e.status
             )
-            raise GeminiServiceError(
+            raise EmbeddingClientError(
                 f"Gemini {operation} request failed ({e.code} {e.status})"
             ) from e
         except Exception as e:
             logger.exception("Gemini %s request failed", operation)
-            raise GeminiServiceError(f"Gemini {operation} request failed") from e
+            raise EmbeddingClientError(f"Gemini {operation} request failed") from e

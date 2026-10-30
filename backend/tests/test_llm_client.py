@@ -3,9 +3,9 @@ import json
 import httpx
 import pytest
 
+from app.clients import llm_client
+from app.clients.llm_client import LLMClient, LLMClientError
 from app.config.settings import settings
-from app.services import llm_service
-from app.services.llm_service import LLMService, LLMServiceError
 from app.services.prompt_service import StandaloneQuery
 
 
@@ -15,7 +15,7 @@ def ok(content: str) -> httpx.Response:
 
 @pytest.fixture
 def provider(monkeypatch):
-    """Route LLMService to a fake provider. Append responses to `replies`; requests land in `seen`."""
+    """Route LLMClient to a fake provider. Append responses to `replies`; requests land in `seen`."""
     replies: list[httpx.Response] = []
     seen: list[dict] = []
 
@@ -25,7 +25,7 @@ def provider(monkeypatch):
 
     monkeypatch.setattr(settings, "CHAT_LLM_API_KEY", "test-key")
     monkeypatch.setattr(
-        LLMService,
+        LLMClient,
         "_client",
         httpx.AsyncClient(
             base_url="http://llm.test", transport=httpx.MockTransport(handle)
@@ -35,7 +35,7 @@ def provider(monkeypatch):
     async def no_sleep(_):
         pass
 
-    monkeypatch.setattr(llm_service.asyncio, "sleep", no_sleep)
+    monkeypatch.setattr(llm_client.asyncio, "sleep", no_sleep)
     return replies, seen
 
 
@@ -43,7 +43,7 @@ async def test_schema_requests_json_mode_and_describes_shape(provider):
     replies, seen = provider
     replies.append(ok('{"query": "sick leave days"}'))
 
-    raw = await LLMService.generate(
+    raw = await LLMClient.generate(
         "Rewrite.", [{"role": "user", "content": "q"}], response_schema=StandaloneQuery
     )
 
@@ -60,7 +60,7 @@ async def test_model_override(provider):
     replies, seen = provider
     replies.append(ok("hi"))
 
-    await LLMService.generate("s", [], model="small-model")
+    await LLMClient.generate("s", [], model="small-model")
 
     assert seen[0]["model"] == "small-model"
     assert "response_format" not in seen[0]
@@ -70,7 +70,7 @@ async def test_short_rate_limit_is_retried(provider):
     replies, seen = provider
     replies += [httpx.Response(429, headers={"retry-after": "2"}), ok("done")]
 
-    assert await LLMService.generate("s", []) == "done"
+    assert await LLMClient.generate("s", []) == "done"
     assert len(seen) == 2
 
 
@@ -79,8 +79,8 @@ async def test_long_rate_limit_fails_at_once(provider):
     replies, seen = provider
     replies.append(httpx.Response(429, headers={"retry-after": "3600"}))
 
-    with pytest.raises(LLMServiceError, match=r"\(429\)"):
-        await LLMService.generate("s", [])
+    with pytest.raises(LLMClientError, match=r"\(429\)"):
+        await LLMClient.generate("s", [])
     assert len(seen) == 1
 
 
@@ -88,14 +88,14 @@ async def test_bad_key_is_not_retried(provider):
     replies, seen = provider
     replies.append(httpx.Response(401, json={"error": "invalid key"}))
 
-    with pytest.raises(LLMServiceError, match=r"\(401\)"):
-        await LLMService.generate("s", [])
+    with pytest.raises(LLMClientError, match=r"\(401\)"):
+        await LLMClient.generate("s", [])
     assert len(seen) == 1
 
 
 async def test_missing_key_fails_without_a_request(monkeypatch):
     monkeypatch.setattr(settings, "CHAT_LLM_API_KEY", "")
-    monkeypatch.setattr(LLMService, "_client", None)
+    monkeypatch.setattr(LLMClient, "_client", None)
 
-    with pytest.raises(LLMServiceError, match="CHAT_LLM_API_KEY is not set"):
-        await LLMService.generate("s", [])
+    with pytest.raises(LLMClientError, match="CHAT_LLM_API_KEY is not set"):
+        await LLMClient.generate("s", [])

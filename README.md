@@ -128,11 +128,12 @@ curl -X POST http://localhost:8000/chat/<conversation_id> \
      -H "Content-Type: application/json" \
      -d '{"question": "How many days of paid sick leave do employees get?"}'
 # -> {"data": {"answer": "Employees receive 10 days of paid sick leave per year.",
-#     "citations": [{"filename": "employee_handbook.pdf", "page": 1, "chunk_id": "...", ...}],
+#     "citations": [{"filename": "employee_handbook.pdf", "page": 1, "chunk_id": "...",
+#                    "text": "<the chunk the answer is based on>", ...}],
 #     "insufficient_evidence": false,
-#     "search_query": "How many days of paid sick leave do employees get?",
+#     "search_query": "How many days of paid sick leave do employees get?", "top_k": 5,
 #     "history_used": 0,
-#     "retrieval_trace": [{"filename": "...", "version": 1, "chunk_index": 0, "score": 0.66,
+#     "retrieval_trace": [{"filename": "...", "version": 1, "chunk_index": 0, "score": 0.66, "text": "...",
 #                          "in_prompt": true, "used_in_answer": true}, ...],
 #     "timings": {"rewrite_ms": 12, "retrieval_ms": 950, "generation_ms": 1500, "total_ms": 2462}}}
 
@@ -169,7 +170,7 @@ Interactive docs with every request and response schema: http://localhost:8000/d
 | `DELETE /documents/{document_id}` | Delete the document and all its chunks | **200** `{"deleted": true, "chunks_removed": n}` · **404** unknown or already deleted |
 | `POST /conversations` | Create a conversation | 201 |
 | `GET /conversations` | List conversations, most recently active first, with message counts | 200 |
-| `POST /chat/{conversation_id}` | Ask a question: `{"question": "..."}` (1 to 4,000 characters) | **200** answer · **404** unknown conversation · **422** blank question · **502** the embedding or LLM provider failed (nothing is stored) |
+| `POST /chat/{conversation_id}` | Ask a question: `{"question": "...", "top_k": 5}`. The question is 1 to 4,000 characters; `top_k` (1 to 50) is optional and defaults to `TOP_K` | **200** answer · **404** unknown conversation · **422** blank question or `top_k` outside 1–50 · **502** the embedding or LLM provider failed (nothing is stored) |
 | `GET /chat/{conversation_id}/history` | Every message in order, with the citations stored on each answer | 200 · 404 |
 | `GET /health` | Checks Qdrant and MySQL: `{"status": "ok", "qdrant": "ok", "mysql": "ok"}` | 200 · 503 degraded |
 | `GET /config` | Non-secret settings for the UI (chunking, top-k, min score, history limit, model names) | 200 |
@@ -227,7 +228,7 @@ flowchart LR
 
 | Component | Role |
 |---|---|
-| **FastAPI** (`backend/app/`) | HTTP API, organised as routes → controllers → services. Routes declare endpoints, controllers turn results and errors into HTTP responses, and services hold the logic. |
+| **FastAPI** (`backend/app/`) | HTTP API, organised as routes → controllers → services → clients. Routes declare endpoints, controllers turn results and errors into HTTP responses, services hold the logic, and clients are the only code that talks to Gemini, Qdrant and Groq. |
 | **MySQL** | The source of truth for *what is live*: documents, their versions and which one is active, soft-deletes, conversations and messages. |
 | **Qdrant** | Stores one point per chunk: its vector plus a payload with `document_id`, `version`, `chunk_id`, `chunk_index`, `filename`, `page`, `content_hash` and `text`. It has payload indexes on `document_id` and `version`. |
 | **Gemini** | Embeddings only, with separate task types for documents (`RETRIEVAL_DOCUMENT`) and questions (`RETRIEVAL_QUERY`). |
@@ -250,13 +251,13 @@ This section helps you trace a request through the code.
    the bytes. If a non-deleted document's *active* version has the same hash, it returns
    that document with `duplicate=true` and embeds nothing.
 3. Otherwise it creates the `documents` row and `document_versions` row (version 1,
-   status `uploaded`), then calls `index_version`. That marks the version `processing` and
+   status `uploaded`), then calls `_index_version`. That marks the version `processing` and
    runs `_index`:
    - `ExtractionService.extract`: text per page with PyMuPDF; UTF-8 for TXT
    - `ChunkingService.chunk_pages`: 800/120 chunks that never cross a page
-   - `GeminiService.embed_documents`: batches of up to 100
-   - `qdrant_service.upsert_chunks`: waits until Qdrant has applied the write
-   - `qdrant_service.count_chunks`: checks that every chunk was stored
+   - `EmbeddingClient.embed_documents`: batches of up to 100
+   - `vector_store_client.upsert_chunks`: waits until Qdrant has applied the write
+   - `vector_store_client.count_chunks`: checks that every chunk was stored
 4. On success the version becomes `indexed` and `documents.active_version_id` is set. On
    failure, `_mark_failed` deletes any partial chunks and stores a user-safe reason on
    the version (status `failed`). Either way the HTTP response is sent only after this
@@ -264,9 +265,9 @@ This section helps you trace a request through the code.
 
 ### Asking a question: `POST /chat/{conversation_id}`
 
-`ChatController.chat` → `ChatService.answer` (`services/chat_service.py`):
+`ChatController.chat` → `AnswerService.answer` (`services/answer_service.py`):
 
-1. `recent_history` loads the latest `HISTORY_LIMIT` messages of *this* conversation,
+1. `ConversationService.recent_history` (`services/conversation_service.py`) loads the latest `HISTORY_LIMIT` messages of *this* conversation,
    ordered by auto-increment id, and drops a leading answer whose question was cut off.
 2. `_standalone_query` uses the small model to rewrite a follow-up ("Do I need a
    certificate for those?") into a standalone search query. The prompt comes from
@@ -275,7 +276,7 @@ This section helps you trace a request through the code.
 3. `RetrievalService.retrieve` (`services/retrieval_service.py`) reads every live
    `(document_id, version)` pair from MySQL (each document joined to its active version
    row). It embeds the query and calls
-   `qdrant_service.search`, which only matches those pairs, so retired versions and
+   `vector_store_client.search`, which only matches those pairs, so retired versions and
    deleted documents can never be returned. Chunks scoring at least `MIN_SCORE` become
    evidence.
 4. With no evidence, the answer is the fixed "I don't have enough information..." text,
@@ -286,11 +287,11 @@ This section helps you trace a request through the code.
    - the new user turn holds a `<context>` block with each chunk as
      `<source id="S1" file="..." page="...">` with HTML-escaped text, then the
      `<question>`
-6. `LLMService.generate` (`services/llm_service.py`) asks for JSON
+6. `LLMClient.generate` (`clients/llm_client.py`) asks for JSON
    (`answer`, `answerable`, `used_sources`). `_generate` validates it, then:
    - drops source ids that were never handed out
    - treats `answerable=false`, or an answer citing no real source, as insufficient
-7. The question and the answer, with its citations, are stored together in one commit.
+7. `ConversationService.save_turn` stores the question and the answer, with its citations, together in one commit.
    The response returns `search_query`, `history_used`, `retrieval_trace` (every
    retrieved chunk with its score, `in_prompt` and `used_in_answer`) and per-step
    `timings`. If a provider fails, the controller returns 502 and nothing is stored.
@@ -299,7 +300,7 @@ This section helps you trace a request through the code.
 
 - **`PUT /documents/{id}`** → `IngestionService.update_file`. If the bytes match the
   active version, nothing happens. Otherwise version N+1 goes through the same
-  `index_version`, and then `_remove_old_version` deletes the replaced version's chunks.
+  `_index_version`, and then `_remove_old_version` deletes the replaced version's chunks.
   [Details](#safe-document-update).
 - **`DELETE /documents/{id}`** → `IngestionService.delete_document` sets `deleted_at` and
   commits, then deletes every chunk of the document from Qdrant.
@@ -479,7 +480,7 @@ chunk of every version is deleted from Qdrant, and the number removed is returne
 - **Gemini embeddings** are good quality, with separate document and query task types,
   768 dimensions, and a free tier.
 - **Groq for the LLM.** Gemini's free tier allowed only ~20 answer requests a day, so
-  answers moved to Groq, which has a far higher free limit. `LLMService` speaks the
+  answers moved to Groq, which has a far higher free limit. `LLMClient` speaks the
   OpenAI-compatible API, so switching to OpenRouter, OpenAI or a local Ollama only means
   changing `CHAT_LLM_BASE_URL`, `CHAT_LLM_API_KEY` and the model names in `.env`.
 - **No LangChain or LlamaIndex.** The pipeline is small enough to write directly, and
@@ -507,7 +508,7 @@ docker compose exec fastapi_app ruff check app tests eval
 | Conversation history: window, cut-off pair, `HISTORY_LIMIT=0`, rewrite and fallback, escaping | `test_history.py`, `test_chat.py` |
 | Update: new version, old version live during indexing, failed update, name/type change, 404/400 | `test_update.py` |
 | Delete: chunks removed, never retrieved, Qdrant down, re-upload after delete | `test_delete.py` |
-| LLM client: JSON mode, retries, fail-fast on long waits, bad key | `test_llm_service.py` |
+| LLM client: JSON mode, retries, fail-fast on long waits, bad key | `test_llm_client.py` |
 | Settings, schemas, migrations, health, config without secrets | `test_settings.py`, `test_schemas.py`, `test_migrations.py`, `test_health.py` |
 
 **The assignment's required scenarios** (section 6) are mapped to their tests in the
@@ -545,16 +546,18 @@ backend/                     FastAPI API (its own Dockerfile and pyproject.toml)
     schemas/                 Pydantic request/response models and the Qdrant chunk payload
     routes/                  endpoint declarations only
     controllers/             HTTP concerns: validation, status codes, error mapping
-    services/
-      ingestion_service.py   upload, index, update, delete; version switching; crash recovery
+    services/                the app's work
+      ingestion_service.py   upload, index, update, delete, list; version switching; crash recovery
       extraction_service.py  PDF/TXT to text per page
       chunking_service.py    recursive splitter with overlap
-      gemini_service.py      embeddings (batched, retried)
-      qdrant_service.py      collection, upsert, count, search filtered by live versions, delete
       retrieval_service.py   live versions from MySQL + vector search + MIN_SCORE
       prompt_service.py      system rules, context block, rewrite prompt, escaping
-      llm_service.py         OpenAI-compatible chat client (JSON mode, retries)
-      chat_service.py        history window, rewrite, answer, citations, trace, conversations
+      conversation_service.py  conversations, history, the 10-message window, saving a turn
+      answer_service.py      rewrite, retrieve, answer, citations, trace
+    clients/                 the only code that talks to outside systems
+      embedding_client.py    Gemini embeddings (batched, retried)
+      vector_store_client.py Qdrant: collection, upsert, count, search filtered by live versions, delete
+      llm_client.py          OpenAI-compatible chat client for Groq (JSON mode, retries)
   alembic/                   database migrations (run automatically on startup)
   tests/                     pytest suite (fakes for Gemini and the LLM)
   eval/                      evaluation questions, script and results

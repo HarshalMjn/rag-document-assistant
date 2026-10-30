@@ -4,8 +4,8 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from app.clients.vector_store_client import qdrant_client
 from app.config.database import engine
-from app.services.qdrant_service import qdrant_client
 
 logger = logging.getLogger(__name__)
 

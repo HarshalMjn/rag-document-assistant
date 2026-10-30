@@ -5,13 +5,13 @@ import pymupdf
 import pytest
 from sqlalchemy import delete
 
+from app.clients import vector_store_client
+from app.clients.embedding_client import EmbeddingClient
+from app.clients.llm_client import LLMClient
 from app.config.database import SessionLocal, engine
 from app.config.settings import settings
 from app.main import app
 from app.models import Conversation, Document
-from app.services import qdrant_service
-from app.services.gemini_service import GeminiService
-from app.services.llm_service import LLMService
 from app.services.prompt_service import StandaloneQuery
 
 TEST_COLLECTION = "documents_test"
@@ -96,8 +96,8 @@ class FakeGemini:
 def fake_gemini(monkeypatch) -> FakeGemini:
     fake = FakeGemini()
     for name in ("embed_documents", "embed_query"):
-        monkeypatch.setattr(GeminiService, name, getattr(fake, name))
-    monkeypatch.setattr(LLMService, "generate", fake.generate)
+        monkeypatch.setattr(EmbeddingClient, name, getattr(fake, name))
+    monkeypatch.setattr(LLMClient, "generate", fake.generate)
     return fake
 
 
@@ -105,10 +105,10 @@ def fake_gemini(monkeypatch) -> FakeGemini:
 def test_collection(monkeypatch):
     """Point Qdrant at a throwaway collection so tests never touch real documents."""
     monkeypatch.setattr(settings, "QDRANT_COLLECTION", TEST_COLLECTION)
-    qdrant_service.qdrant_client.delete_collection(TEST_COLLECTION)
-    qdrant_service.ensure_collection()
+    vector_store_client.qdrant_client.delete_collection(TEST_COLLECTION)
+    vector_store_client.ensure_collection()
     yield TEST_COLLECTION
-    qdrant_service.qdrant_client.delete_collection(TEST_COLLECTION)
+    vector_store_client.qdrant_client.delete_collection(TEST_COLLECTION)
 
 
 @pytest.fixture

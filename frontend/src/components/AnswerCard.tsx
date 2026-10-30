@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import type { Message, TraceItem } from "../api";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function AnswerCard({ message, trace, minScore }: Props) {
+  const [openChunk, setOpenChunk] = useState<string | null>(null);
   const response = trace?.response;
   // Stored answers keep [] citations when the knowledge base had no answer.
   const insufficient = response ? response.insufficient_evidence : (message.citations ?? []).length === 0;
@@ -48,6 +50,8 @@ export function AnswerCard({ message, trace, minScore }: Props) {
   }
 
   const citations = message.citations ?? [];
+  const opened = citations.find((c) => c.chunk_id === openChunk);
+  const openedText = opened ? (opened.text ?? byChunk.get(opened.chunk_id)?.text) : null;
   return (
     <div className="answer-row">
       <div className="avatar">AI</div>
@@ -68,15 +72,27 @@ export function AnswerCard({ message, trace, minScore }: Props) {
                 t ? `chunk ${t.chunk_index}` : null,
                 t ? `v${t.version}` : null,
               ].filter(Boolean);
+              const hasText = Boolean(c.text ?? t?.text);
+              const isOpen = openChunk === c.chunk_id;
               return (
-                <span className="citation" key={c.chunk_id} title={`chunk_id ${c.chunk_id}`}>
+                <button
+                  type="button"
+                  className={`citation ${isOpen ? "open" : ""}`}
+                  key={c.chunk_id}
+                  title={hasText ? "Show the source text" : `chunk_id ${c.chunk_id}`}
+                  aria-expanded={isOpen}
+                  disabled={!hasText}
+                  onClick={() => setOpenChunk(isOpen ? null : c.chunk_id)}
+                >
                   <strong>[{i + 1}]</strong>
                   {parts.join(" · ")}
-                </span>
+                  {hasText && <span aria-hidden="true">{isOpen ? "▴" : "▾"}</span>}
+                </button>
               );
             })}
           </div>
         )}
+        {openedText && <blockquote className="citation-text">{openedText}</blockquote>}
         {response && trace && (
           <details className="trace-details">
             <summary>

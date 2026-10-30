@@ -17,6 +17,8 @@ export function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
+  // null until the user changes it, so the box shows the TOP_K setting by default.
+  const [topK, setTopK] = useState<number | null>(null);
   const [asking, setAsking] = useState<string | null>(null);
   const [askError, setAskError] = useState<string | null>(null);
   const bottom = useRef<HTMLDivElement>(null);
@@ -80,7 +82,7 @@ export function ChatPage() {
     setAskError(null);
     setQuestion("");
     try {
-      const response = await api.ask(id, text);
+      const response = await api.ask(id, text, validTopK(topK));
       const { messages: updated } = await api.history(id);
       const answer = updated[updated.length - 1];
       addTrace({
@@ -202,6 +204,18 @@ export function ChatPage() {
                 disabled={!!asking}
               />
             </label>
+            <label className="topk" title="Number of chunks to retrieve for this question (1-50)">
+              <span className="small muted">Top-k</span>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={50}
+                value={topK ?? config?.top_k ?? ""}
+                onChange={(e) => setTopK(e.target.value === "" ? null : Number(e.target.value))}
+                disabled={!!asking}
+              />
+            </label>
             <button type="submit" className="send" aria-label="Send question" disabled={!!asking || !question.trim()}>
               <SendIcon />
             </button>
@@ -212,4 +226,10 @@ export function ChatPage() {
       <KnowledgeBase />
     </div>
   );
+}
+
+/** A whole number from 1 to 50, or undefined so the server uses its TOP_K setting. */
+function validTopK(value: number | null): number | undefined {
+  if (value == null || !Number.isFinite(value)) return undefined;
+  return Math.min(50, Math.max(1, Math.round(value)));
 }

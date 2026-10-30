@@ -1,12 +1,12 @@
 from sqlalchemy import select, update
 
+from app.clients import vector_store_client
+from app.clients.llm_client import LLMClientError
 from app.config.database import SessionLocal
 from app.config.settings import settings
 from app.models import Conversation, Document, DocumentVersion, Message
 from app.models.document import DocumentStatus
 from app.schemas.chunk import ChunkPayload
-from app.services import qdrant_service
-from app.services.llm_service import LLMServiceError
 from app.services.prompt_service import INSUFFICIENT_ANSWER
 from tests.conftest import fake_vector
 
@@ -61,6 +61,8 @@ async def test_answer_cites_the_retrieved_chunk(client, fake_gemini):
     assert [(c["document_id"], c["filename"]) for c in body["citations"]] == [
         (leave["id"], "leave.txt")
     ]
+    # The citation carries the chunk text, so the answer can be checked against it.
+    assert body["citations"][0]["text"] == LEAVE_TEXT.decode()
     # Only the leave chunk passed MIN_SCORE, so it is the only source the LLM saw.
     prompt = fake_gemini.last_prompt["messages"][-1]["content"]
     assert "15 days of paid leave" in prompt
@@ -131,7 +133,7 @@ async def test_deleted_document_is_never_retrieved(client, fake_gemini):
     body = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
 
     # Its chunks are still in Qdrant, but MySQL says the document is gone.
-    assert qdrant_service.count_chunks(leave["id"]) == 1
+    assert vector_store_client.count_chunks(leave["id"]) == 1
     assert body["insufficient_evidence"] is True
     assert body["retrieval_trace"] == []
     assert fake_gemini.generate_calls == 0
@@ -144,13 +146,13 @@ async def test_only_the_active_version_is_retrieved(client, fake_gemini):
     v2 = ChunkPayload(
         document_id=leave["id"],
         version=2,
-        chunk_id=qdrant_service.make_chunk_id(leave["id"], 2, 0),
+        chunk_id=vector_store_client.make_chunk_id(leave["id"], 2, 0),
         chunk_index=0,
         filename="leave.txt",
         content_hash="v2",
         text="Employees receive 20 days of paid leave per year.",
     )
-    qdrant_service.upsert_chunks([v2], [fake_vector(v2.text)])
+    vector_store_client.upsert_chunks([v2], [fake_vector(v2.text)])
 
     before = (await ask(client, conversation_id, "How many leave days?")).json()["data"]
     async with SessionLocal() as db:
@@ -197,7 +199,7 @@ async def test_question_and_answer_are_stored_with_citations(client, fake_gemini
 async def test_llm_failure_returns_502_and_stores_nothing(client, fake_gemini):
     await upload(client, "leave.txt", LEAVE_TEXT)
     conversation_id = await new_conversation(client)
-    fake_gemini.error = LLMServiceError("LLM request failed (503)")
+    fake_gemini.error = LLMClientError("LLM request failed (503)")
 
     response = await ask(client, conversation_id, "How many leave days?")
 
@@ -275,7 +277,7 @@ async def test_failed_rewrite_shows_original_question(client, fake_gemini):
     await upload(client, "leave.txt", LEAVE_TEXT)
     conversation_id = await new_conversation(client)
     await ask(client, conversation_id, "How many leave days?")
-    fake_gemini.rewrite_error = LLMServiceError("LLM request failed (503)")
+    fake_gemini.rewrite_error = LLMClientError("LLM request failed (503)")
 
     body = (await ask(client, conversation_id, "And per year?")).json()["data"]
 
@@ -310,6 +312,8 @@ async def test_history_returns_messages_in_order_with_citations(client, fake_gem
         ("assistant", INSUFFICIENT_ANSWER),
     ]
     assert [c["document_id"] for c in messages[1]["citations"]] == [document["id"]]
+    # Stored with the message, so reopened conversations can show it too.
+    assert messages[1]["citations"][0]["text"] == LEAVE_TEXT.decode()
     assert messages[3]["citations"] == []
     assert messages[0]["citations"] is None
 
@@ -343,6 +347,8 @@ async def test_trace_shows_source_and_whether_chunk_reached_the_prompt(
     assert by_file["leave.txt"]["chunk_index"] == 0
     assert by_file["leave.txt"]["in_prompt"] is True
     assert by_file["leave.txt"]["used_in_answer"] is True
+    assert by_file["leave.txt"]["text"] == LEAVE_TEXT.decode()
+    assert by_file["travel.txt"]["text"] == TRAVEL_TEXT.decode()
     # The travel chunk is retrieved but scores below MIN_SCORE, so the LLM never sees it.
     assert by_file["travel.txt"]["in_prompt"] is False
     assert set(body["timings"]) == {
@@ -352,6 +358,38 @@ async def test_trace_shows_source_and_whether_chunk_reached_the_prompt(
         "total_ms",
     }
     assert body["history_used"] == 0
+
+
+async def test_top_k_per_question_limits_the_retrieved_chunks(client, fake_gemini):
+    await upload(client, "leave.txt", LEAVE_TEXT)
+    await upload(client, "travel.txt", TRAVEL_TEXT)
+    conversation_id = await new_conversation(client)
+
+    default = (await ask(client, conversation_id, "How many leave days?")).json()[
+        "data"
+    ]
+    response = await client.post(
+        f"/chat/{conversation_id}",
+        json={"question": "How many leave days?", "top_k": 1},
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()["data"]
+    assert default["top_k"] == settings.TOP_K
+    assert len(default["retrieval_trace"]) == 2
+    assert body["top_k"] == 1
+    assert [t["filename"] for t in body["retrieval_trace"]] == ["leave.txt"]
+
+
+async def test_top_k_out_of_range_is_rejected(client):
+    conversation_id = await new_conversation(client)
+
+    for top_k in (0, 51):
+        response = await client.post(
+            f"/chat/{conversation_id}",
+            json={"question": "How many leave days?", "top_k": top_k},
+        )
+        assert response.status_code == 422
 
 
 async def test_history_used_counts_the_context_messages(client, fake_gemini):

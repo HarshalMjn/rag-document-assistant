@@ -1,10 +1,10 @@
 from sqlalchemy import update
 
+from app.clients import vector_store_client
 from app.config.database import SessionLocal
 from app.models import DocumentVersion
 from app.models.document import Document, DocumentStatus
 from app.schemas.chunk import ChunkPayload
-from app.services import qdrant_service
 from app.services.ingestion_service import INTERRUPTED_ERROR, IngestionService
 from tests.conftest import fake_vector
 
@@ -45,7 +45,7 @@ async def test_interrupted_first_upload_is_marked_failed(client, fake_gemini):
     assert body["status"] == "failed"
     assert body["active_version"] is None
     assert body["versions"][0]["error"] == INTERRUPTED_ERROR
-    assert qdrant_service.count_chunks(document["id"]) == 0
+    assert vector_store_client.count_chunks(document["id"]) == 0
 
 
 async def test_interrupted_update_keeps_previous_version_live(client, fake_gemini):
@@ -65,13 +65,13 @@ async def test_interrupted_update_keeps_previous_version_live(client, fake_gemin
     partial = ChunkPayload(
         document_id=document["id"],
         version=2,
-        chunk_id=qdrant_service.make_chunk_id(document["id"], 2, 0),
+        chunk_id=vector_store_client.make_chunk_id(document["id"], 2, 0),
         chunk_index=0,
         filename="leave.txt",
         content_hash="v2",
         text="Employees receive 20 days of paid leave per year.",
     )
-    qdrant_service.upsert_chunks([partial], [fake_vector(partial.text)])
+    vector_store_client.upsert_chunks([partial], [fake_vector(partial.text)])
 
     assert await recover() == 1
 
@@ -82,8 +82,8 @@ async def test_interrupted_update_keeps_previous_version_live(client, fake_gemin
         (1, "indexed"),
         (2, "failed"),
     ]
-    assert qdrant_service.count_chunks(document["id"], 2) == 0
-    assert qdrant_service.count_chunks(document["id"], 1) == 1
+    assert vector_store_client.count_chunks(document["id"], 2) == 0
+    assert vector_store_client.count_chunks(document["id"], 1) == 1
 
 
 async def test_recovery_ignores_finished_versions(client, fake_gemini):

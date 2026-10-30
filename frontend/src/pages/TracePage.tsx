@@ -64,7 +64,7 @@ export function TracePage() {
         <HistoryWindow trace={selected} limit={config?.history_limit ?? 10} />
         <div style={{ flex: "999 1 600px", minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
           <QueryRewrite trace={selected} />
-          <RetrievedChunks trace={selected} topK={config?.top_k} minScore={config?.min_score} />
+          <RetrievedChunks trace={selected} topK={selected.response.top_k ?? config?.top_k} minScore={config?.min_score} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
             <PromptAssembly trace={selected} />
             <Latency trace={selected} />
@@ -164,7 +164,15 @@ function RetrievedChunks({ trace, topK, minScore }: { trace: TraceEntry; topK?: 
             {chunks.map((c, i) => (
               <tr key={c.chunk_id}>
                 <td className="muted">{i + 1}</td>
-                <td style={{ fontWeight: 500 }}>{sourceLabel(c.filename, c.page)}</td>
+                <td>
+                  <div style={{ fontWeight: 500 }}>{sourceLabel(c.filename, c.page)}</div>
+                  {c.text && (
+                    <details className="chunk-text">
+                      <summary>Show text</summary>
+                      <p>{c.text}</p>
+                    </details>
+                  )}
+                </td>
                 <td className="mono small" style={{ color: "var(--text-2)" }} title={c.chunk_id}>
                   doc_{shortId(c.document_id)}:v{c.version}:c{c.chunk_index}
                 </td>

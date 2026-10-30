@@ -8,6 +8,7 @@ from app.models.message import MessageRole
 class ChatRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     question: str = Field(min_length=1, max_length=4000)
+    top_k: int | None = Field(default=None, ge=1, le=50)
 
 
 class ConversationOut(BaseModel):
@@ -31,6 +32,7 @@ class Citation(BaseModel):
     page: int | None = None
     chunk_id: str
     source_url: str | None = None
+    text: str | None = None
 
 
 class RetrievalTraceItem(BaseModel):
@@ -41,6 +43,7 @@ class RetrievalTraceItem(BaseModel):
     page: int | None = None
     chunk_index: int
     score: float
+    text: str
     in_prompt: bool = False
     used_in_answer: bool = False
 
@@ -58,6 +61,7 @@ class ChatResponse(BaseModel):
     citations: list[Citation] = []
     insufficient_evidence: bool = False
     search_query: str
+    top_k: int
     history_used: int = 0
     retrieval_trace: list[RetrievalTraceItem] = []
     timings: ChatTimings | None = None

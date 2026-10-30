@@ -2,11 +2,11 @@ from datetime import datetime
 
 from sqlalchemy import update
 
+from app.clients import vector_store_client
+from app.clients.embedding_client import EmbeddingClient, EmbeddingClientError
 from app.config.database import SessionLocal
 from app.config.settings import settings
 from app.models import Document
-from app.services import qdrant_service
-from app.services.gemini_service import GeminiService, GeminiServiceError
 from app.services.retrieval_service import RetrievalService
 from tests.conftest import make_pdf
 from tests.test_chat import ask, new_conversation, upload
@@ -39,8 +39,8 @@ async def test_update_indexes_a_new_version_and_removes_the_old(client, fake_gem
         (1, "indexed"),
         (2, "indexed"),
     ]
-    assert qdrant_service.count_chunks(document["id"], 1) == 0
-    assert qdrant_service.count_chunks(document["id"], 2) == 1
+    assert vector_store_client.count_chunks(document["id"], 1) == 0
+    assert vector_store_client.count_chunks(document["id"], 2) == 1
 
 
 async def test_chat_after_update_uses_only_the_new_content(client, fake_gemini):
@@ -66,12 +66,12 @@ async def test_old_version_stays_live_while_the_new_one_is_indexed(
     async def checking_embed(texts):
         async with SessionLocal() as db:
             seen_during_indexing["live"] = await RetrievalService.active_versions(db)
-        seen_during_indexing["v1_chunks"] = qdrant_service.count_chunks(
+        seen_during_indexing["v1_chunks"] = vector_store_client.count_chunks(
             document["id"], 1
         )
         return await embed(texts)
 
-    monkeypatch.setattr(GeminiService, "embed_documents", checking_embed)
+    monkeypatch.setattr(EmbeddingClient, "embed_documents", checking_embed)
 
     await put(client, document["id"], "leave.txt", V2_TEXT)
 
@@ -95,7 +95,7 @@ async def test_unchanged_content_is_not_reindexed(client, fake_gemini):
 
 async def test_failed_update_keeps_the_old_version_live(client, fake_gemini):
     document = await upload(client, "leave.txt", V1_TEXT)
-    fake_gemini.error = GeminiServiceError("Gemini embedding request failed (503)")
+    fake_gemini.error = EmbeddingClientError("Gemini embedding request failed (503)")
 
     response = await put(client, document["id"], "new-leave.txt", V2_TEXT)
 
@@ -108,13 +108,13 @@ async def test_failed_update_keeps_the_old_version_live(client, fake_gemini):
     failed = updated["versions"][-1]
     assert (failed["version"], failed["status"]) == (2, "failed")
     assert "503" in failed["error"]
-    assert qdrant_service.count_chunks(document["id"], 1) == 1
-    assert qdrant_service.count_chunks(document["id"], 2) == 0
+    assert vector_store_client.count_chunks(document["id"], 1) == 1
+    assert vector_store_client.count_chunks(document["id"], 2) == 0
 
 
 async def test_version_after_a_failed_update_gets_the_next_number(client, fake_gemini):
     document = await upload(client, "leave.txt", V1_TEXT)
-    fake_gemini.error = GeminiServiceError("Gemini embedding request failed (503)")
+    fake_gemini.error = EmbeddingClientError("Gemini embedding request failed (503)")
     await put(client, document["id"], "leave.txt", V2_TEXT)
     fake_gemini.error = None
 
@@ -128,7 +128,7 @@ async def test_version_after_a_failed_update_gets_the_next_number(client, fake_g
         "failed",
         "indexed",
     ]
-    assert qdrant_service.count_chunks(document["id"]) == 1
+    assert vector_store_client.count_chunks(document["id"]) == 1
 
 
 async def test_update_can_change_name_and_type(client, fake_gemini):
@@ -139,7 +139,7 @@ async def test_update_can_change_name_and_type(client, fake_gemini):
 
     assert response.status_code == 200, response.text
     assert response.json()["data"]["document"]["filename"] == "leave.pdf"
-    points, _ = qdrant_service.qdrant_client.scroll(
+    points, _ = vector_store_client.qdrant_client.scroll(
         settings.QDRANT_COLLECTION, limit=10, with_payload=True
     )
     assert [p.payload["filename"] for p in points] == ["leave.pdf"]

@@ -17,8 +17,8 @@ generated tables in `backend/eval/results/summary.md`.
 | Config B | 400-character chunks, 60 overlap: 15 chunks |
 
 Each configuration is indexed into its own Qdrant collection, and the pipeline is the
-production code (`ExtractionService`, `ChunkingService`, `GeminiService`,
-`qdrant_service.search`, `ChatService` rewrite and generation). Follow-ups are asked
+production code (`ExtractionService`, `ChunkingService`, `EmbeddingClient`,
+`vector_store_client.search`, `AnswerService` rewrite and generation). Follow-ups are asked
 with the previous question and the answer the run just produced as history.
 
 ### Metric definitions

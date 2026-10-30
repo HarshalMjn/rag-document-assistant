@@ -7,13 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette.concurrency import run_in_threadpool
 
+from app.clients import vector_store_client
+from app.clients.embedding_client import EmbeddingClient, EmbeddingClientError
 from app.models.document import Document, DocumentStatus, SourceType
 from app.models.document_version import DocumentVersion
 from app.schemas.chunk import ChunkPayload
-from app.services import qdrant_service
 from app.services.chunking_service import ChunkingService
 from app.services.extraction_service import ExtractionError, ExtractionService
-from app.services.gemini_service import GeminiService, GeminiServiceError
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class IngestionService:
         the version's `error`).
         """
         content_hash = hashlib.sha256(data).hexdigest()
-        existing = await cls.find_indexed_by_hash(db, content_hash)
+        existing = await cls._find_indexed_by_hash(db, content_hash)
         if existing is not None:
             logger.info("Duplicate upload of document %s", existing.id)
             return existing, True
@@ -62,7 +62,7 @@ class IngestionService:
         db.add_all([document, version])
         await db.commit()
 
-        await cls.index_version(db, document, version, data)
+        await cls._index_version(db, document, version, data)
         return await cls.get_document(db, document.id), False
 
     @classmethod
@@ -108,7 +108,7 @@ class IngestionService:
             await db.rollback()
             raise UpdateConflictError(document.id) from e
 
-        await cls.index_version(db, document, version, data)
+        await cls._index_version(db, document, version, data)
         if version.status == DocumentStatus.INDEXED and previous is not None:
             await cls._remove_old_version(document.id, previous)
         return await cls.get_document(db, document.id), False
@@ -125,8 +125,10 @@ class IngestionService:
         await db.commit()
 
         try:
-            removed = await run_in_threadpool(qdrant_service.count_chunks, document.id)
-            await run_in_threadpool(qdrant_service.delete_document, document.id)
+            removed = await run_in_threadpool(
+                vector_store_client.count_chunks, document.id
+            )
+            await run_in_threadpool(vector_store_client.delete_document, document.id)
         except Exception:
             logger.exception(
                 "Could not remove chunks of deleted document %s", document.id
@@ -155,7 +157,9 @@ class IngestionService:
         for version in versions:
             try:
                 await run_in_threadpool(
-                    qdrant_service.delete_version, version.document_id, version.version
+                    vector_store_client.delete_version,
+                    version.document_id,
+                    version.version,
                 )
             except Exception:
                 logger.exception(
@@ -178,14 +182,16 @@ class IngestionService:
         """Delete a replaced version's chunks. Failure is only logged: retrieval already
         ignores every version except the active one."""
         try:
-            await run_in_threadpool(qdrant_service.delete_version, document_id, version)
+            await run_in_threadpool(
+                vector_store_client.delete_version, document_id, version
+            )
         except Exception:
             logger.exception(
                 "Could not remove old chunks of document %s v%s", document_id, version
             )
 
     @classmethod
-    async def index_version(
+    async def _index_version(
         cls,
         db: AsyncSession,
         document: Document,
@@ -221,7 +227,7 @@ class IngestionService:
         )
 
     @classmethod
-    async def find_indexed_by_hash(
+    async def _find_indexed_by_hash(
         cls, db: AsyncSession, content_hash: str
     ) -> Document | None:
         """Find a non-deleted document whose active version has these exact bytes.
@@ -249,6 +255,17 @@ class IngestionService:
         )
 
     @classmethod
+    async def list_documents(cls, db: AsyncSession) -> list[Document]:
+        """Every non-deleted document with its versions, newest first."""
+        result = await db.execute(
+            select(Document)
+            .options(selectinload(Document.versions))
+            .where(Document.deleted_at.is_(None))
+            .order_by(Document.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    @classmethod
     async def get_document(cls, db: AsyncSession, document_id: int) -> Document | None:
         """Load a non-deleted document with its versions."""
         result = await db.execute(
@@ -274,7 +291,7 @@ class IngestionService:
             ChunkPayload(
                 document_id=document.id,
                 version=version.version,
-                chunk_id=qdrant_service.make_chunk_id(
+                chunk_id=vector_store_client.make_chunk_id(
                     document.id, version.version, chunk.chunk_index
                 ),
                 chunk_index=chunk.chunk_index,
@@ -286,11 +303,11 @@ class IngestionService:
             )
             for chunk in chunks
         ]
-        vectors = await GeminiService.embed_documents([p.text for p in payloads])
-        await run_in_threadpool(qdrant_service.upsert_chunks, payloads, vectors)
+        vectors = await EmbeddingClient.embed_documents([p.text for p in payloads])
+        await run_in_threadpool(vector_store_client.upsert_chunks, payloads, vectors)
 
         stored = await run_in_threadpool(
-            qdrant_service.count_chunks, document.id, version.version
+            vector_store_client.count_chunks, document.id, version.version
         )
         if stored != len(payloads):
             raise RuntimeError(
@@ -306,7 +323,7 @@ class IngestionService:
         version: DocumentVersion,
         error: Exception,
     ) -> None:
-        if isinstance(error, ExtractionError | GeminiServiceError):
+        if isinstance(error, ExtractionError | EmbeddingClientError):
             # These messages are written to be safe for users.
             reason = str(error)
             logger.warning(
@@ -324,7 +341,7 @@ class IngestionService:
         # Remove any chunks written before the failure; a failed version must not be searchable.
         try:
             await run_in_threadpool(
-                qdrant_service.delete_version, document.id, version.version
+                vector_store_client.delete_version, document.id, version.version
             )
         except Exception:
             logger.exception(

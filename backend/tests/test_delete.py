@@ -1,4 +1,4 @@
-from app.services import qdrant_service
+from app.clients import vector_store_client
 from tests.test_chat import ask, new_conversation, upload
 from tests.test_update import V1_TEXT, V2_TEXT, put
 
@@ -16,7 +16,7 @@ async def test_delete_removes_the_document_and_its_chunks(client, fake_gemini):
         "deleted": True,
         "chunks_removed": 1,
     }
-    assert qdrant_service.count_chunks(document["id"]) == 0
+    assert vector_store_client.count_chunks(document["id"]) == 0
     assert (await client.get(f"/documents/{document['id']}")).status_code == 404
     listed = (await client.get("/documents")).json()["data"]
     assert document["id"] not in [d["id"] for d in listed]
@@ -29,7 +29,7 @@ async def test_delete_removes_chunks_of_every_version(client, fake_gemini):
     response = await client.delete(f"/documents/{document['id']}")
 
     assert response.json()["data"]["chunks_removed"] == 1
-    assert qdrant_service.count_chunks(document["id"]) == 0
+    assert vector_store_client.count_chunks(document["id"]) == 0
 
 
 async def test_chat_never_cites_a_deleted_document(client, fake_gemini):
@@ -54,7 +54,7 @@ async def test_document_stays_deleted_if_qdrant_cleanup_fails(
     def broken_delete(document_id):
         raise ConnectionError("Qdrant is down")
 
-    monkeypatch.setattr(qdrant_service, "delete_document", broken_delete)
+    monkeypatch.setattr(vector_store_client, "delete_document", broken_delete)
     conversation_id = await new_conversation(client)
 
     response = await client.delete(f"/documents/{document['id']}")
@@ -63,7 +63,7 @@ async def test_document_stays_deleted_if_qdrant_cleanup_fails(
     assert response.status_code == 200
     assert response.json()["data"]["chunks_removed"] == 0
     # The chunks are still in Qdrant, but MySQL says the document is gone.
-    assert qdrant_service.count_chunks(document["id"]) == 1
+    assert vector_store_client.count_chunks(document["id"]) == 1
     assert body["retrieval_trace"] == []
     assert body["insufficient_evidence"] is True
 

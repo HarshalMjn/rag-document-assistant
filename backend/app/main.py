@@ -4,10 +4,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.concurrency import run_in_threadpool
 
+from app.clients.vector_store_client import ensure_collection
 from app.config.database import SessionLocal, engine
 from app.routes import chat, config, documents, health
 from app.services.ingestion_service import IngestionService
-from app.services.qdrant_service import ensure_collection
 
 logger = logging.getLogger(__name__)
 

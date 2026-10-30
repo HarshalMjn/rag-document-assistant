@@ -21,7 +21,7 @@
 |                       | test_update.py::test_failed_update_keeps_the_old_version_live         |
 """
 
-from app.services.gemini_service import GeminiServiceError
+from app.clients.embedding_client import EmbeddingClientError
 from tests.test_chat import ask, new_conversation, stored_messages, upload
 from tests.test_update import put
 
@@ -99,7 +99,7 @@ async def test_answer_cites_both_sources(client, fake_gemini):
 async def test_embedding_failure_during_chat_returns_502(client, fake_gemini):
     await upload(client, "leave.txt", LEAVE_15)
     conversation_id = await new_conversation(client)
-    fake_gemini.error = GeminiServiceError("Gemini embedding request failed (503)")
+    fake_gemini.error = EmbeddingClientError("Gemini embedding request failed (503)")
 
     response = await ask(client, conversation_id, "How many leave days?")
 

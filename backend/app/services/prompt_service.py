@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from app.services.llm_service import ChatMessage
-from app.services.qdrant_service import SearchHit
+from app.clients.llm_client import ChatMessage
+from app.clients.vector_store_client import SearchHit
 
 INSUFFICIENT_ANSWER = (
     "I don't have enough information in the uploaded documents to answer that."

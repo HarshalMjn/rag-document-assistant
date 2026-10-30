@@ -53,6 +53,8 @@ export interface Citation {
   page: number | null;
   chunk_id: string;
   source_url: string | null;
+  /** Missing on messages stored before snippets were added. */
+  text?: string | null;
 }
 
 export interface TraceItem {
@@ -63,6 +65,7 @@ export interface TraceItem {
   page: number | null;
   chunk_index: number;
   score: number;
+  text: string;
   in_prompt: boolean;
   used_in_answer: boolean;
 }
@@ -80,6 +83,8 @@ export interface ChatResponse {
   citations: Citation[];
   insufficient_evidence: boolean;
   search_query: string;
+  /** Chunks retrieval asked for: the question's top_k, else the TOP_K setting. */
+  top_k: number;
   history_used: number;
   retrieval_trace: TraceItem[];
   timings: Timings | null;
@@ -199,6 +204,6 @@ export const api = {
   createConversation: () => request<{ id: number }>("/conversations", json("POST")),
   history: (id: number) =>
     request<{ conversation_id: number; messages: Message[] }>(`/chat/${id}/history`),
-  ask: (id: number, question: string) =>
-    request<ChatResponse>(`/chat/${id}`, json("POST", { question })),
+  ask: (id: number, question: string, topK?: number) =>
+    request<ChatResponse>(`/chat/${id}`, json("POST", { question, top_k: topK })),
 };

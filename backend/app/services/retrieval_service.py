@@ -4,12 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.concurrency import run_in_threadpool
 
+from app.clients import vector_store_client
+from app.clients.embedding_client import EmbeddingClient
+from app.clients.vector_store_client import SearchHit
 from app.config.settings import settings
 from app.models.document import Document
 from app.models.document_version import DocumentVersion
-from app.services import qdrant_service
-from app.services.gemini_service import GeminiService
-from app.services.qdrant_service import SearchHit
 
 
 @dataclass(frozen=True)
@@ -41,9 +41,9 @@ class RetrievalService:
             # Nothing is indexed, so there is no need to embed the question.
             return RetrievalResult(hits=[], evidence=[])
 
-        vector = await GeminiService.embed_query(query)
+        vector = await EmbeddingClient.embed_query(query)
         hits = await run_in_threadpool(
-            qdrant_service.search, vector, active_versions, top_k
+            vector_store_client.search, vector, active_versions, top_k
         )
         evidence = [hit for hit in hits if hit.score >= min_score]
         return RetrievalResult(hits=hits, evidence=evidence)

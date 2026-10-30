@@ -1,6 +1,6 @@
+from app.clients import vector_store_client
+from app.clients.embedding_client import EmbeddingClientError
 from app.config.settings import settings
-from app.services import qdrant_service
-from app.services.gemini_service import GeminiServiceError
 from tests.conftest import make_pdf
 
 POLICY_TEXT = " ".join(
@@ -28,10 +28,10 @@ async def test_upload_pdf_indexes_chunks_with_pages(client, fake_gemini):
     assert document["active_version"] == 1
     assert version["page_count"] == 2
     assert version["chunk_count"] > 1
-    assert qdrant_service.count_chunks(document["id"], 1) == version["chunk_count"]
+    assert vector_store_client.count_chunks(document["id"], 1) == version["chunk_count"]
 
     # Every stored chunk carries the metadata citations need.
-    points, _ = qdrant_service.qdrant_client.scroll(
+    points, _ = vector_store_client.qdrant_client.scroll(
         settings.QDRANT_COLLECTION, limit=100, with_payload=True
     )
     assert {p.payload["page"] for p in points} == {1, 2}
@@ -68,12 +68,12 @@ async def test_duplicate_upload_returns_existing_document(client, fake_gemini):
     assert second.json()["data"]["document"]["id"] == first["document"]["id"]
     # Nothing was embedded or stored a second time.
     assert fake_gemini.embed_calls == 1
-    assert qdrant_service.count_chunks(first["document"]["id"]) == 1
+    assert vector_store_client.count_chunks(first["document"]["id"]) == 1
 
 
 async def test_failed_file_can_be_uploaded_again(client, fake_gemini):
     data = b"Remote work is allowed 2 days a week."
-    fake_gemini.error = GeminiServiceError(
+    fake_gemini.error = EmbeddingClientError(
         "Gemini embedding request failed (503 UNAVAILABLE)"
     )
     failed = await upload(client, "remote.txt", data)
@@ -98,7 +98,7 @@ async def test_scanned_pdf_fails_with_reason(client, fake_gemini):
 
 
 async def test_gemini_failure_marks_failed_and_stores_nothing(client, fake_gemini):
-    fake_gemini.error = GeminiServiceError(
+    fake_gemini.error = EmbeddingClientError(
         "Gemini embedding request failed (429 RESOURCE_EXHAUSTED)"
     )
 
@@ -108,7 +108,7 @@ async def test_gemini_failure_marks_failed_and_stores_nothing(client, fake_gemin
     document = response.json()["data"]["document"]
     assert document["status"] == "failed"
     assert "429" in document["versions"][0]["error"]
-    assert qdrant_service.count_chunks(document["id"]) == 0
+    assert vector_store_client.count_chunks(document["id"]) == 0
 
 
 async def test_unsupported_type_is_rejected(client, fake_gemini):

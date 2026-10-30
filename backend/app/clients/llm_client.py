@@ -22,7 +22,7 @@ _INITIAL_DELAY_S = 2.0
 _MAX_RETRY_WAIT_S = 20.0
 
 
-class LLMServiceError(Exception):
+class LLMClientError(Exception):
     """Any failure talking to the chat LLM. Messages never include the API key."""
 
 
@@ -31,16 +31,16 @@ class ChatMessage(TypedDict):
     content: str
 
 
-class LLMService:
+class LLMClient:
     """Chat completions over any OpenAI-compatible API (Groq by default, also OpenRouter
-    or a local Ollama). Embeddings stay on Gemini, see GeminiService."""
+    or a local Ollama). Embeddings stay on Gemini, see EmbeddingClient."""
 
     _client: httpx.AsyncClient | None = None
 
     @classmethod
     def _get_client(cls) -> httpx.AsyncClient:
         if not settings.CHAT_LLM_API_KEY:
-            raise LLMServiceError("CHAT_LLM_API_KEY is not set")
+            raise LLMClientError("CHAT_LLM_API_KEY is not set")
         if cls._client is None:
             cls._client = httpx.AsyncClient(
                 base_url=settings.CHAT_LLM_BASE_URL.rstrip("/"),
@@ -83,14 +83,14 @@ class LLMService:
         try:
             text = data["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as e:
-            raise LLMServiceError("LLM returned an unexpected response") from e
+            raise LLMClientError("LLM returned an unexpected response") from e
         if not text:
-            raise LLMServiceError("LLM returned an empty response")
+            raise LLMClientError("LLM returned an empty response")
         return text
 
     @classmethod
     async def _post(cls, path: str, body: dict) -> dict:
-        """POST with retries; every failure becomes LLMServiceError."""
+        """POST with retries; every failure becomes LLMClientError."""
         client = cls._get_client()
         for attempt in range(1, _RETRY_ATTEMPTS + 1):
             try:
@@ -98,7 +98,7 @@ class LLMService:
             except httpx.HTTPError as e:
                 logger.warning("LLM request failed: %s", type(e).__name__)
                 if attempt == _RETRY_ATTEMPTS:
-                    raise LLMServiceError("LLM request failed") from e
+                    raise LLMClientError("LLM request failed") from e
                 await asyncio.sleep(cls._backoff(attempt))
                 continue
 
@@ -117,7 +117,7 @@ class LLMService:
                 or attempt == _RETRY_ATTEMPTS
                 or wait > _MAX_RETRY_WAIT_S
             ):
-                raise LLMServiceError(f"LLM request failed ({response.status_code})")
+                raise LLMClientError(f"LLM request failed ({response.status_code})")
             await asyncio.sleep(wait)
         raise AssertionError("unreachable")
 

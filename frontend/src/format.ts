@@ -72,7 +72,7 @@ export function replacedVersion(doc: DocumentOut): DocumentVersion | undefined {
 /**
  * How many of `messages` the backend sends as context for the next question: the latest
  * `limit`, minus a leading assistant reply whose question was cut off. Mirrors
- * ChatService.recent_history.
+ * ConversationService.recent_history.
  */
 export function contextWindow(messages: Message[], limit: number): number {
   if (limit <= 0) return 0;
