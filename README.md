@@ -33,12 +33,11 @@ Everything runs in Docker, so Python, Node and MySQL do not need to be installed
 
 | Need | Why |
 |---|---|
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine 24+ with Compose v2 (`docker compose version`) | Runs all four services |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Runs all four services |
 | A [Gemini API key](https://aistudio.google.com/apikey) (free tier) | Embeddings |
 | A [Groq API key](https://console.groq.com/keys) (free tier) | Answers and follow-up query rewriting |
 | Free ports `5173`, `8000`, `6333`, `6334`, `3306` | UI, API, Qdrant (HTTP and gRPC), MySQL |
-| About 2 GB of disk and an internet connection on the first run | Docker images and the frontend's `npm install` |
-
+| Internet connection | Downloads images and npm packages on the first run, and calls Gemini and Groq on every upload and question |
 ## Quick start
 
 1. Clone the repository.
