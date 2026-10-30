@@ -1,0 +1,2412 @@
+{
+  "run_at": "2026-10-30T09:33:25+00:00",
+  "settings": {
+    "embedding_model": "gemini-embedding-001",
+    "answer_model": "openai/gpt-oss-120b",
+    "top_k": 5,
+    "min_score": 0.55,
+    "embedding_batch_size": 90
+  },
+  "documents": [
+    "leave_policy_v2.txt",
+    "diabetes_how_to_take_control.pdf",
+    "eatwell_guide_2018.pdf"
+  ],
+  "question_count": 21,
+  "answerable_count": 17,
+  "configs": [
+    {
+      "chunk_size": 800,
+      "chunk_overlap": 120,
+      "default": true,
+      "chunk_count": 66,
+      "index_seconds": 5.9,
+      "index_tokens_estimate": 10788,
+      "retrieval": {
+        "recall@1": 0.706,
+        "recall@3": 0.941,
+        "recall@5": 1.0,
+        "mrr": 0.819,
+        "refused_at_retrieval": 1,
+        "unanswerable_total": 4,
+        "answerable_top_score": {
+          "min": 0.6308,
+          "median": 0.7178,
+          "max": 0.7965
+        },
+        "unanswerable_top_score": {
+          "min": 0.5263,
+          "median": 0.5974,
+          "max": 0.647
+        },
+        "mean_retrieval_seconds": 0.726
+      },
+      "questions": [
+        {
+          "id": "leave-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7248,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.549,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7248,
+              "hit": true,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6856,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6698,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            }
+          ],
+          "answer": "20 days",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null
+            }
+          ],
+          "generation_seconds": 0.816,
+          "llm_called": true,
+          "prompt_tokens_estimate": 965,
+          "answer_tokens_estimate": 2
+        },
+        {
+          "id": "leave-02",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.652,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.827,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.652,
+              "hit": true,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6427,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.613,
+              "hit": false,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            }
+          ],
+          "answer": "You can carry over up to 5 unused days, and they must be used by 31 March of the following year or they will be lost.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null
+            }
+          ],
+          "generation_seconds": 0.677,
+          "llm_called": true,
+          "prompt_tokens_estimate": 971,
+          "answer_tokens_estimate": 29
+        },
+        {
+          "id": "leave-03",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6504,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.522,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6504,
+              "hit": true,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6048,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.601,
+              "hit": false,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            }
+          ],
+          "answer": "You need a medical certificate (doctor’s note) if you are absent for more than three consecutive working days.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null
+            }
+          ],
+          "generation_seconds": 0.954,
+          "llm_called": true,
+          "prompt_tokens_estimate": 961,
+          "answer_tokens_estimate": 28
+        },
+        {
+          "id": "leave-04",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6432,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.52,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6432,
+              "hit": true,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6152,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5722,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            }
+          ],
+          "answer": "16 weeks",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null
+            }
+          ],
+          "generation_seconds": 0.667,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1217,
+          "answer_tokens_estimate": 2
+        },
+        {
+          "id": "leave-05",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6308,
+          "evidence_chunks": 4,
+          "retrieval_seconds": 0.512,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6308,
+              "hit": true,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6196,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5735,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            }
+          ],
+          "answer": "You receive a replacement day off within the next 30 days.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null
+            }
+          ],
+          "generation_seconds": 0.779,
+          "llm_called": true,
+          "prompt_tokens_estimate": 908,
+          "answer_tokens_estimate": 14
+        },
+        {
+          "id": "leave-06",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7178,
+          "evidence_chunks": 4,
+          "retrieval_seconds": 0.67,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7178,
+              "hit": true,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6277,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6151,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            }
+          ],
+          "answer": "You may work remotely for up to 2 days per week.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null
+            }
+          ],
+          "generation_seconds": 0.546,
+          "llm_called": true,
+          "prompt_tokens_estimate": 907,
+          "answer_tokens_estimate": 12
+        },
+        {
+          "id": "diabetes-01",
+          "answerable": true,
+          "rank": 3,
+          "top_score": 0.6953,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.52,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6953,
+              "hit": false,
+              "text": "The majority of people who have been diagnosed recently and lose more\nthan 15 kg of their body weight can put their type 2 diabetes into remission.\nYou can speak to your dietitian if you want more inf"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.6911,
+              "hit": false,
+              "text": "Protein and fat have a smaller and indirect effect on blood glucose. The\nchanges below would help to reduce your overall blood glucose levels:\n• Reduce the intake of foods containing saturated and tra"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6889,
+              "hit": true,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n2\nRemember - You can make a big difference to your diabetes and health.\nLearn more and take co"
+            }
+          ],
+          "answer": "Losing even 5‑10% of your body weight can noticeably improve your blood glucose levels.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2
+            }
+          ],
+          "generation_seconds": 0.794,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1410,
+          "answer_tokens_estimate": 22
+        },
+        {
+          "id": "diabetes-02",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7307,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.508,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.7307,
+              "hit": true,
+              "text": "The majority of people who have been diagnosed recently and lose more\nthan 15 kg of their body weight can put their type 2 diabetes into remission.\nYou can speak to your dietitian if you want more inf"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6217,
+              "hit": false,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n2\nRemember - You can make a big difference to your diabetes and health.\nLearn more and take co"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.615,
+              "hit": false,
+              "text": "Moderate intensity activity raises your heart rate and makes you breathe\nfaster and feel warmer, but you can still hold a conversation, for example\nbrisk walking, doing the vacuuming, water aerobics. "
+            }
+          ],
+          "answer": "Yes, type 2 diabetes can go into remission. The document says that most people who have been diagnosed recently and lose more than 15 kg of body weight can achieve remission.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2
+            }
+          ],
+          "generation_seconds": 1.134,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1286,
+          "answer_tokens_estimate": 44
+        },
+        {
+          "id": "diabetes-03",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6987,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.504,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6987,
+              "hit": true,
+              "text": "foods, pastry, chocolate, non-diet fizzy drinks, cakes and sweets.\n• Include more vegetables or salad at mealtimes. These are low in\ncalories, and contain plenty of vitamins & minerals, with fibre to "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 3,
+              "score": 0.6948,
+              "hit": false,
+              "text": "A closer look at\n\nFruit and vegetables\nMost people know we should be eating more fruit and veg, but many of us aren’t\neating enough. Fruit and veg should make up just over a third of the food we eat\ne"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 10,
+              "score": 0.6932,
+              "hit": false,
+              "text": "10\nFood group\nWhat’s included?\nHow much?\nTips\nFruit and\nvegetables\nAll fruit and vegetables including fresh, frozen, canned, dried and juiced varieties.\nPotatoes do not count as they are considered a "
+            }
+          ],
+          "answer": "Half of your plate should be vegetables or salad.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2
+            }
+          ],
+          "generation_seconds": 0.872,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1192,
+          "answer_tokens_estimate": 12
+        },
+        {
+          "id": "diabetes-04",
+          "answerable": true,
+          "rank": 4,
+          "top_score": 0.7417,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.493,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.7417,
+              "hit": false,
+              "text": "of standard strength lager contains approximately 136kcal, a 175ml\nmedium glass of wine contains approximately 135kcal and a 25ml\nshot of spirit (40% vol) contains approximately 56kcal.\nFood labelling"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.7154,
+              "hit": false,
+              "text": "smoothies also count towards your fluid consumption, although they\nare a source of free sugars* and so you should limit consumption to\nno more than a combined total of 150ml per day.\nSugary drinks are"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6437,
+              "hit": false,
+              "text": "How much food do I need?\nWe all need different amounts of energy (or calories) from food to be a healthy weight. How\nmuch you need depends on lots of things, including how active you are.\nWhenever we "
+            }
+          ],
+          "answer": "One source (S1 and S2) says a pint of standard‑strength lager (beer) has about 136 kcal and a 175 ml glass of wine about 135 kcal. Another source (S4) gives a broader range, stating a pint of beer or a glass of wine contains roughly 170–250 calories, indicating the values can vary.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 3
+            }
+          ],
+          "generation_seconds": 9.728,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1238,
+          "answer_tokens_estimate": 70
+        },
+        {
+          "id": "diabetes-05",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7965,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.948,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.7965,
+              "hit": true,
+              "text": "Listeriosis risk: foods to avoid\nAvoid ready-to-eat cold smoked or cured fish products such as smoked\nsalmon or gravlax due to an increased risk from listeriosis. Listeriosis is an\ninfection caused by"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.6857,
+              "hit": false,
+              "text": "Protein and fat have a smaller and indirect effect on blood glucose. The\nchanges below would help to reduce your overall blood glucose levels:\n• Reduce the intake of foods containing saturated and tra"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 3,
+              "score": 0.6601,
+              "hit": false,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n3\n\n• Choose lean sources of protein such as chicken, fish, eggs, pulses.\nAvoid adding extra fa"
+            }
+          ],
+          "answer": "People with diabetes should avoid smoked salmon because it is a ready‑to‑eat cold smoked fish that can carry listeria, and they are at higher risk of serious illness from listeriosis.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4
+            }
+          ],
+          "generation_seconds": 8.031,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1310,
+          "answer_tokens_estimate": 46
+        },
+        {
+          "id": "diabetes-06",
+          "answerable": true,
+          "rank": 2,
+          "top_score": 0.7176,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.632,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.7176,
+              "hit": false,
+              "text": "Moderate intensity activity raises your heart rate and makes you breathe\nfaster and feel warmer, but you can still hold a conversation, for example\nbrisk walking, doing the vacuuming, water aerobics. "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.7036,
+              "hit": true,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n5\nIncrease activity\nIncreasing activity burns more calories, helps reduce your blood glucose, "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6812,
+              "hit": false,
+              "text": "The majority of people who have been diagnosed recently and lose more\nthan 15 kg of their body weight can put their type 2 diabetes into remission.\nYou can speak to your dietitian if you want more inf"
+            }
+          ],
+          "answer": "The recommendation is 150 minutes of moderate‑intensity activity each week (or 75 minutes of vigorous activity), plus muscle‑strengthening exercises twice a week.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5
+            }
+          ],
+          "generation_seconds": 7.244,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1153,
+          "answer_tokens_estimate": 40
+        },
+        {
+          "id": "eatwell-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7185,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.988,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.7185,
+              "hit": true,
+              "text": "7\nRemember that the portion sizes used on the\nlabel are suggestions and may not be the\nsame as you actually consume. For example,\nsome foods and drinks commonly consumed\nas single servings have the nu"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.6962,
+              "hit": false,
+              "text": "therefore it is important to get most of our fat from unsaturated oils.\nChoosing lower fat spreads, as opposed to butter, is a good way to\nreduce your saturated fat intake.\nRemember that all types of "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.6894,
+              "hit": false,
+              "text": "low-fat diet isn’t suitable for children under five.\nOne of the easiest ways to cut down on saturated fat is to compare the labels on similar\nproducts and choose the one lower in saturated fat. Watch "
+            }
+          ],
+          "answer": "No more than 20 g of saturated fat per day.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7
+            }
+          ],
+          "generation_seconds": 10.935,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1292,
+          "answer_tokens_estimate": 11
+        },
+        {
+          "id": "eatwell-02",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7292,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.644,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.7292,
+              "hit": true,
+              "text": "lots of people would benefit from cutting down. Adults should eat no more than 6g of salt a\nday. Children should have even less. 6g of salt is about a teaspoonful. But remember we’re\nnot just talking "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6695,
+              "hit": false,
+              "text": "5. Eat less salt – no more than 6g a day\nfor adults\n6. Get active and be a healthy weight\n7. Don’t get thirsty\n8. Don’t skip breakfast\nRemember fruit juice and/or\nsmoothies should be limited to no\nmor"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 1,
+              "score": 0.6597,
+              "hit": false,
+              "text": "250kcal\nFat\nSaturates Sugars\nSalt\n3.0g\n1.3g\n34g\n0.9g\n15%\n38%\n7%\n4%\n13%\nChoose foods lower\nin fat, salt and sugars\nSource: Public Health England in association with the Welsh Government, Food Standards"
+            }
+          ],
+          "answer": "Adults should eat no more than 6 g of salt per day.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8
+            }
+          ],
+          "generation_seconds": 9.948,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1254,
+          "answer_tokens_estimate": 13
+        },
+        {
+          "id": "eatwell-03",
+          "answerable": true,
+          "rank": 2,
+          "top_score": 0.7388,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 1.005,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.7388,
+              "hit": false,
+              "text": "People whose skin has little or no exposure to the sun, or who always cover their skin\nwhen outside, risk vitamin D deficiency and need to take a daily supplement containing 10\nmicrograms of vitamin D"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.7174,
+              "hit": true,
+              "text": "affected by neural tube defects, need to take 5mg of folic acid each day until the 12th week\nof pregnancy. In addition, women who have diabetes and those taking anti-epileptic\nmedicines should consult"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6633,
+              "hit": false,
+              "text": "a day do not need any additional vitamin D as formula is already fortified.\nFor more information, talk to your GP or another health professional, or see:\nhttp://www.nhs.uk/Conditions/vitamins-minerals"
+            }
+          ],
+          "answer": "Yes. In autumn and winter you should consider taking a daily vitamin D supplement of about 10 µg.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9
+            }
+          ],
+          "generation_seconds": 13.141,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1389,
+          "answer_tokens_estimate": 24
+        },
+        {
+          "id": "eatwell-04",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6749,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.962,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.6749,
+              "hit": true,
+              "text": "smoothies also count towards your fluid consumption, although they\nare a source of free sugars* and so you should limit consumption to\nno more than a combined total of 150ml per day.\nSugary drinks are"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.6498,
+              "hit": false,
+              "text": "of standard strength lager contains approximately 136kcal, a 175ml\nmedium glass of wine contains approximately 135kcal and a 25ml\nshot of spirit (40% vol) contains approximately 56kcal.\nFood labelling"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 2,
+              "score": 0.63,
+              "hit": false,
+              "text": "what proportions – to have a healthy, balanced diet.\nThe Eatwell Guide shows the proportions of the main food groups that form a healthy,\nbalanced diet:\n• Eat at least 5 portions of a variety of fruit"
+            }
+          ],
+          "answer": "The weekly alcohol limit is no more than 14 units per week for both men and women.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6
+            }
+          ],
+          "generation_seconds": 8.121,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1356,
+          "answer_tokens_estimate": 20
+        },
+        {
+          "id": "eatwell-05",
+          "answerable": true,
+          "rank": 3,
+          "top_score": 0.7225,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.932,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.7225,
+              "hit": false,
+              "text": "Aim for at least two portions (2 x 140g) of fish a week, including a portion of oily\nfish. Most people should be eating more fish, but there are recommended limits\nfor oily fish, crab and some types o"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 10,
+              "score": 0.7202,
+              "hit": false,
+              "text": "• vegetarian meat\nalternatives eg tofu,\nmycoprotein\nEat some beans, pulses, fish, eggs, meat and other\nproteins. Eat at least 2 portions (2 x 140g) of fish\neach week, one of which is oily. Limit proce"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.7088,
+              "hit": true,
+              "text": "off of meat and the skin off of chicken, try to grill meat and\nfish instead of frying and have a boiled or poached egg\ninstead of fried. If you eat more than 90g of red or\nprocessed meat per day, try "
+            }
+          ],
+          "answer": "You should aim to reduce your intake to no more than 70 g of red or processed meat per day.",
+          "error": null,
+          "refused": false,
+          "facts_ok": true,
+          "citation_ok": true,
+          "correct": true,
+          "citations": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 10
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5
+            }
+          ],
+          "generation_seconds": 10.863,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1397,
+          "answer_tokens_estimate": 23
+        },
+        {
+          "id": "none-01",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.647,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.913,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.647,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6404,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6404,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            }
+          ],
+          "answer": "I don't have enough information in the uploaded documents to answer that.",
+          "error": null,
+          "refused": true,
+          "facts_ok": null,
+          "citation_ok": null,
+          "correct": true,
+          "citations": [],
+          "generation_seconds": 4.922,
+          "llm_called": true,
+          "prompt_tokens_estimate": 958,
+          "answer_tokens_estimate": 18
+        },
+        {
+          "id": "none-02",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.577,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 1.01,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.577,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5714,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5692,
+              "hit": false,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            }
+          ],
+          "answer": "I don't have enough information in the uploaded documents to answer that.",
+          "error": null,
+          "refused": true,
+          "facts_ok": null,
+          "citation_ok": null,
+          "correct": true,
+          "citations": [],
+          "generation_seconds": 8.939,
+          "llm_called": true,
+          "prompt_tokens_estimate": 962,
+          "answer_tokens_estimate": 18
+        },
+        {
+          "id": "none-03",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.6177,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.951,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6177,
+              "hit": false,
+              "text": "9\nIf you’re overweight, then you may need to eat less, improve the balance of your diet and/or\nget more active. Ask your GP, or another health professional, for advice about losing weight.\nDo you know"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6149,
+              "hit": false,
+              "text": "affected by neural tube defects, need to take 5mg of folic acid each day until the 12th week\nof pregnancy. In addition, women who have diabetes and those taking anti-epileptic\nmedicines should consult"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6128,
+              "hit": false,
+              "text": "lots of people would benefit from cutting down. Adults should eat no more than 6g of salt a\nday. Children should have even less. 6g of salt is about a teaspoonful. But remember we’re\nnot just talking "
+            }
+          ],
+          "answer": "I don't have enough information in the uploaded documents to answer that.",
+          "error": null,
+          "refused": true,
+          "facts_ok": null,
+          "citation_ok": null,
+          "correct": true,
+          "citations": [],
+          "generation_seconds": 7.128,
+          "llm_called": true,
+          "prompt_tokens_estimate": 1378,
+          "answer_tokens_estimate": 18
+        },
+        {
+          "id": "none-04",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.5263,
+          "evidence_chunks": 0,
+          "retrieval_seconds": 0.646,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5263,
+              "hit": false,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 6,
+              "score": 0.5077,
+              "hit": false,
+              "text": "Document History\n\nDepartment:\nDietetics\nContact:\n26161\nUpdated:\nJuly 2025\nReview:\nJuly 2028\nVersion:\n5.2\nReference:           HIC/LFT/1930/15"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5064,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            }
+          ],
+          "answer": "I don't have enough information in the uploaded documents to answer that.",
+          "error": null,
+          "refused": true,
+          "facts_ok": null,
+          "citation_ok": null,
+          "correct": true,
+          "citations": [],
+          "generation_seconds": 0.0,
+          "llm_called": false,
+          "prompt_tokens_estimate": 0,
+          "answer_tokens_estimate": 0
+        }
+      ],
+      "answers": {
+        "facts_ok": 17,
+        "citation_ok": 17,
+        "answerable_correct": 17,
+        "answerable_total": 17,
+        "refused_correctly": 4,
+        "unanswerable_total": 4,
+        "errors": 0,
+        "llm_calls": 20,
+        "mean_generation_seconds": 5.312,
+        "prompt_tokens_estimate": 23504,
+        "answer_tokens_estimate": 466
+      }
+    },
+    {
+      "chunk_size": 400,
+      "chunk_overlap": 60,
+      "default": false,
+      "chunk_count": 126,
+      "index_seconds": 9.39,
+      "index_tokens_estimate": 10458,
+      "retrieval": {
+        "recall@1": 0.588,
+        "recall@3": 0.765,
+        "recall@5": 0.765,
+        "mrr": 0.667,
+        "refused_at_retrieval": 1,
+        "unanswerable_total": 4,
+        "answerable_top_score": {
+          "min": 0.6653,
+          "median": 0.7439,
+          "max": 0.783
+        },
+        "unanswerable_top_score": {
+          "min": 0.5263,
+          "median": 0.6028,
+          "max": 0.6483
+        },
+        "mean_retrieval_seconds": 0.527
+      },
+      "questions": [
+        {
+          "id": "leave-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7376,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.607,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7376,
+              "hit": true,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7006,
+              "hit": false,
+              "text": "over into the next year; carried-over days must be used by 31 March or they are\nlost. Unused annual leave is not paid out in cash, except when employment ends."
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6924,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            }
+          ]
+        },
+        {
+          "id": "leave-02",
+          "answerable": true,
+          "rank": null,
+          "top_score": 0.7498,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.55,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7498,
+              "hit": false,
+              "text": "over into the next year; carried-over days must be used by 31 March or they are\nlost. Unused annual leave is not paid out in cash, except when employment ends."
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6569,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6568,
+              "hit": false,
+              "text": "4. Public holidays\nBrightline Systems observes 10 public holidays each year. The list is published\nin the HR portal every December. Employees who are asked to work on a public\nholiday receive a replac"
+            }
+          ]
+        },
+        {
+          "id": "leave-03",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6896,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.552,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6896,
+              "hit": true,
+              "text": "2. Sick leave\nEmployees receive 10 days of paid sick leave per calendar year. Sick leave does\nnot carry over. An employee who is ill must tell their line manager before 10:00\non the first day of absen"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6032,
+              "hit": false,
+              "text": "4. Public holidays\nBrightline Systems observes 10 public holidays each year. The list is published\nin the HR portal every December. Employees who are asked to work on a public\nholiday receive a replac"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.601,
+              "hit": false,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            }
+          ]
+        },
+        {
+          "id": "leave-04",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6886,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.529,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6886,
+              "hit": true,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6167,
+              "hit": false,
+              "text": "2. Sick leave\nEmployees receive 10 days of paid sick leave per calendar year. Sick leave does\nnot carry over. An employee who is ill must tell their line manager before 10:00\non the first day of absen"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6095,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            }
+          ]
+        },
+        {
+          "id": "leave-05",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6653,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.541,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6653,
+              "hit": true,
+              "text": "4. Public holidays\nBrightline Systems observes 10 public holidays each year. The list is published\nin the HR portal every December. Employees who are asked to work on a public\nholiday receive a replac"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6254,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6234,
+              "hit": false,
+              "text": "over into the next year; carried-over days must be used by 31 March or they are\nlost. Unused annual leave is not paid out in cash, except when employment ends."
+            }
+          ]
+        },
+        {
+          "id": "leave-06",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7178,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.528,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7178,
+              "hit": true,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6327,
+              "hit": false,
+              "text": "2. Sick leave\nEmployees receive 10 days of paid sick leave per calendar year. Sick leave does\nnot carry over. An employee who is ill must tell their line manager before 10:00\non the first day of absen"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6307,
+              "hit": false,
+              "text": "4. Public holidays\nBrightline Systems observes 10 public holidays each year. The list is published\nin the HR portal every December. Employees who are asked to work on a public\nholiday receive a replac"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7792,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.506,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.7792,
+              "hit": true,
+              "text": "blood. Losing even 5-10% of your body weight can noticeably improve your\nblood glucose levels. There is no one ideal diet, which works for everyone.\nResearch shows that all of the following diets can "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.7068,
+              "hit": false,
+              "text": "Protein and fat have a smaller and indirect effect on blood glucose. The\nchanges below would help to reduce your overall blood glucose levels:\n• Reduce the intake of foods containing saturated and tra"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6971,
+              "hit": false,
+              "text": "• low-fat healthy eating\n• intermittent fasting\n\nThe majority of people who have been diagnosed recently and lose more\nthan 15 kg of their body weight can put their type 2 diabetes into remission.\nYou"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-02",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7457,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.486,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.7457,
+              "hit": true,
+              "text": "• low-fat healthy eating\n• intermittent fasting\n\nThe majority of people who have been diagnosed recently and lose more\nthan 15 kg of their body weight can put their type 2 diabetes into remission.\nYou"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6881,
+              "hit": false,
+              "text": "blood. Losing even 5-10% of your body weight can noticeably improve your\nblood glucose levels. There is no one ideal diet, which works for everyone.\nResearch shows that all of the following diets can "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 1,
+              "score": 0.6726,
+              "hit": false,
+              "text": "What can you do?\nThere are 4 things that you can do to treat Type 2 diabetes:"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-03",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7016,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.515,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.7016,
+              "hit": true,
+              "text": "plate is empty.\n• Avoid foods high in fat or sugar, or have only occasionally such as fried\nfoods, pastry, chocolate, non-diet fizzy drinks, cakes and sweets.\n• Include more vegetables or salad at mea"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 2,
+              "score": 0.6971,
+              "hit": false,
+              "text": "what proportions – to have a healthy, balanced diet.\nThe Eatwell Guide shows the proportions of the main food groups that form a healthy,\nbalanced diet:\n• Eat at least 5 portions of a variety of fruit"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 3,
+              "score": 0.697,
+              "hit": false,
+              "text": "A closer look at\n\nFruit and vegetables\nMost people know we should be eating more fruit and veg, but many of us aren’t\neating enough. Fruit and veg should make up just over a third of the food we eat\ne"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-04",
+          "answerable": true,
+          "rank": 3,
+          "top_score": 0.7505,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.52,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.7505,
+              "hit": false,
+              "text": "your sugar intake in a simple step.\nAlcohol also contains lots of calories (kcal) and should be limited to\nno more than 14 units per week for men and women. The calorific\ncontent of an alcoholic bever"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.7368,
+              "hit": false,
+              "text": "medium glass of wine contains approximately 135kcal and a 25ml\nshot of spirit (40% vol) contains approximately 56kcal.\nFood labelling\nLots of pre-packaged foods have a food label on the front of pack "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 3,
+              "score": 0.7124,
+              "hit": true,
+              "text": "choose a healthy snack.\n• Reduce your alcohol intake – a pint of beer or glass of wine contains\nabout 170-250 calories, so these can soon add up.\n\nHealthy eating\nFoods have different amounts of the th"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-05",
+          "answerable": true,
+          "rank": null,
+          "top_score": 0.783,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.51,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.783,
+              "hit": false,
+              "text": "salmon or gravlax due to an increased risk from listeriosis. Listeriosis is an\ninfection caused by bacteria called listeria. People with diabetes are at higher\nrisk of serious illness from listeriosis"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.735,
+              "hit": false,
+              "text": "chickpeas or other meat alternatives such as QuornTM).\n\nPeople with diabetes are at a higher risk of cardio-vascular disease.\nTherefore, it is even more important to follow a healthy, balanced diet, s"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.6672,
+              "hit": false,
+              "text": "Protein and fat have a smaller and indirect effect on blood glucose. The\nchanges below would help to reduce your overall blood glucose levels:\n• Reduce the intake of foods containing saturated and tra"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-06",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7604,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.52,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.7604,
+              "hit": true,
+              "text": "Build up your activity slowly and limit sitting down time. The current\nrecommendations for physical activity are 150 minutes of moderate intensity\nactivity over a week, or 75 minutes of intense activi"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 1,
+              "score": 0.6986,
+              "hit": false,
+              "text": "What can you do?\nThere are 4 things that you can do to treat Type 2 diabetes:"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.6817,
+              "hit": false,
+              "text": "Take medication\nTake medication if prescribed by your doctor – but remember that changes to\nyour diet and activity levels will help you to control your blood glucose\nalongside the medication.\n\nUseful "
+            }
+          ]
+        },
+        {
+          "id": "eatwell-01",
+          "answerable": true,
+          "rank": null,
+          "top_score": 0.7439,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.524,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.7439,
+              "hit": false,
+              "text": "saturated fat a day. Children should have less saturated fat than adults. But remember that a\nlow-fat diet isn’t suitable for children under five.\nOne of the easiest ways to cut down on saturated fat "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.7314,
+              "hit": false,
+              "text": "food-labelling.aspx.\nCutting down on saturated fat\nCutting down on saturated fat can lower your blood cholesterol and reduce your risk of heart\ndisease. Most people in the UK eat too much saturated fa"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.7049,
+              "hit": false,
+              "text": "saturated fat, including fatty cuts of meat, sausages, butter, cream, cheese, chocolate,\npastries, cakes and biscuits. You don’t need to stop eating these foods altogether, but eating\ntoo much of thes"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-02",
+          "answerable": true,
+          "rank": null,
+          "top_score": 0.7397,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.53,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.7397,
+              "hit": false,
+              "text": "day. Children should have even less. 6g of salt is about a teaspoonful. But remember we’re\nnot just talking about the salt you add to your food because most of the salt we eat is already\nin everyday f"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6923,
+              "hit": false,
+              "text": "choosing foods that are lower in salt is one of the best ways to cut down. For more\ninformation, visit www.nhs.uk/Livewell/Goodfood/Pages/salt.aspx.\nHow much food do I need?\nWe all need different amou"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6735,
+              "hit": false,
+              "text": "sugar. For more information, visit www.nhs.uk/Livewell/Goodfood/Pages/sugars.aspx.\nCutting down on salt\nEating too much salt can raise your blood pressure, which increases your risk of developing\nhear"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-03",
+          "answerable": true,
+          "rank": 2,
+          "top_score": 0.7708,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.528,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.7708,
+              "hit": false,
+              "text": "micrograms of vitamin D during autumn and winter.\nPeople whose skin has little or no exposure to the sun, or who always cover their skin\nwhen outside, risk vitamin D deficiency and need to take a dail"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.7556,
+              "hit": true,
+              "text": "the skin and from a healthy, balanced diet. However, during the autumn and winter we need\nto rely on dietary sources of vitamin D. Since it is difficult for people to get enough vitamin D\nfrom food al"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.7265,
+              "hit": false,
+              "text": "African, Afro-Caribbean and South Asian backgrounds, may not get enough vitamin D from\nsunlight in the summer and therefore should consider taking a supplement all year round.\nChildren aged 1 to 4 yea"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-04",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7116,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.534,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.7116,
+              "hit": true,
+              "text": "your sugar intake in a simple step.\nAlcohol also contains lots of calories (kcal) and should be limited to\nno more than 14 units per week for men and women. The calorific\ncontent of an alcoholic bever"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.6558,
+              "hit": false,
+              "text": "medium glass of wine contains approximately 135kcal and a 25ml\nshot of spirit (40% vol) contains approximately 56kcal.\nFood labelling\nLots of pre-packaged foods have a food label on the front of pack "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 1,
+              "score": 0.6372,
+              "hit": false,
+              "text": "Eatwell Guide\n2000kcal        2500kcal = ALL FOOD + ALL DRINKS\nPer day\nEat less often and\nin small amounts\nChoo\nse lo\nwer f\nat a\nnd\n low\ner su\ngar o\nption\ns\nEa\nt m\nore\n be\nans\n and\n pul\nses,\n2 por\ntio"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-05",
+          "answerable": true,
+          "rank": 2,
+          "top_score": 0.7562,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.55,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 10,
+              "score": 0.7562,
+              "hit": false,
+              "text": "proteins. Eat at least 2 portions (2 x 140g) of fish\neach week, one of which is oily. Limit processed\nmeats such as sausages, bacon and cured meats. If\nyou eat more than 90g per day of red or processe"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.7463,
+              "hit": true,
+              "text": "instead of fried. If you eat more than 90g of red or\nprocessed meat per day, try to cut down to no more\nthan 70g per day. The term processed meat\nincludes sausages, bacon, cured meats\nand reformed mea"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.7221,
+              "hit": false,
+              "text": "fish. Most people should be eating more fish, but there are recommended limits\nfor oily fish, crab and some types of white fish. For more information on fish please\nsee www.nhs.uk/Livewell/Goodfood/Pa"
+            }
+          ]
+        },
+        {
+          "id": "none-01",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.6483,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.505,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6483,
+              "hit": false,
+              "text": "2. Sick leave\nEmployees receive 10 days of paid sick leave per calendar year. Sick leave does\nnot carry over. An employee who is ill must tell their line manager before 10:00\non the first day of absen"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6419,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6378,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            }
+          ]
+        },
+        {
+          "id": "none-02",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.5889,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.514,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 6,
+              "score": 0.5889,
+              "hit": false,
+              "text": "The Trust operates a smoke free policy.\nDid we get it right?\nWe would like you to tell us what you think about our\nservices. This helps us make further improvements and\nrecognise members of staff who "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5807,
+              "hit": false,
+              "text": "2. Sick leave\nEmployees receive 10 days of paid sick leave per calendar year. Sick leave does\nnot carry over. An employee who is ill must tell their line manager before 10:00\non the first day of absen"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5782,
+              "hit": false,
+              "text": "1. Annual leave\nEvery full-time employee is entitled to 20 days of paid annual leave per calendar\nyear. Annual leave builds up at 1.67 days for each full month worked. Requests\nmust be submitted in th"
+            }
+          ]
+        },
+        {
+          "id": "none-03",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.6168,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.526,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6168,
+              "hit": false,
+              "text": "9\nIf you’re overweight, then you may need to eat less, improve the balance of your diet and/or\nget more active. Ask your GP, or another health professional, for advice about losing weight.\nDo you know"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6163,
+              "hit": false,
+              "text": "Do I need vitamin and mineral supplements?\nMost people can get all the nutrients their body needs by eating healthily. However, some\npeople do need certain supplements. For example, if you are plannin"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 2,
+              "score": 0.608,
+              "hit": false,
+              "text": "wholegrain versions where possible\n• Have some dairy or dairy alternatives (such as soya drinks); choosing lower fat and lower\nsugar options\n• Eat some beans, pulses, fish, eggs, meat and other protei"
+            }
+          ]
+        },
+        {
+          "id": "none-04",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.5263,
+          "evidence_chunks": 0,
+          "retrieval_seconds": 0.488,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5263,
+              "hit": false,
+              "text": "5. Remote work days\nEmployees may work remotely for up to 2 days per week, agreed in advance with\ntheir line manager. Remote work days are not a type of leave and do not reduce\nannual leave. The offic"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 12,
+              "score": 0.5174,
+              "hit": false,
+              "text": "change-for-life.aspx\n© Crown copyright 2018\nGateway number: 2015588\nSeptember 2018 v4\nYou may re-use this information (excluding logos) free of charge in any format or\nmedium, under the terms of the O"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 4,
+              "score": 0.5131,
+              "hit": false,
+              "text": "substitute of your family favourites.\nA closer look at\nDairy and alternatives\nTry to have some milk and dairy food (or dairy alternatives) – such as cheese,\nyoghurt and fromage frais.\nThese are good s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "chunk_size": 1200,
+      "chunk_overlap": 200,
+      "default": false,
+      "chunk_count": 47,
+      "index_seconds": 5.34,
+      "index_tokens_estimate": 11013,
+      "retrieval": {
+        "recall@1": 0.765,
+        "recall@3": 0.882,
+        "recall@5": 1.0,
+        "mrr": 0.85,
+        "refused_at_retrieval": 1,
+        "unanswerable_total": 4,
+        "answerable_top_score": {
+          "min": 0.6135,
+          "median": 0.6943,
+          "max": 0.7718
+        },
+        "unanswerable_top_score": {
+          "min": 0.5038,
+          "median": 0.5927,
+          "max": 0.6506
+        },
+        "mean_retrieval_seconds": 0.661
+      },
+      "questions": [
+        {
+          "id": "leave-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7125,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 0.524,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.7125,
+              "hit": true,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6676,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 1,
+              "score": 0.5296,
+              "hit": false,
+              "text": "Eatwell Guide\n2000kcal        2500kcal = ALL FOOD + ALL DRINKS\nPer day\nEat less often and\nin small amounts\nChoo\nse lo\nwer f\nat a\nnd\n low\ner su\ngar o\nption\ns\nEa\nt m\nore\n be\nans\n and\n pul\nses,\n2 por\ntio"
+            }
+          ]
+        },
+        {
+          "id": "leave-02",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6432,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 0.535,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6432,
+              "hit": true,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6385,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.5193,
+              "hit": false,
+              "text": "in everyday foods such as bread, breakfast cereal, pasta sauce and soup. Try replacing salt\nwith pepper, herbs and spices to add flavour to your favourite dishes. Checking the label and\nchoosing foods"
+            }
+          ]
+        },
+        {
+          "id": "leave-03",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6625,
+          "evidence_chunks": 3,
+          "retrieval_seconds": 0.491,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6625,
+              "hit": true,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6066,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.5523,
+              "hit": false,
+              "text": "9\nIf you’re overweight, then you may need to eat less, improve the balance of your diet and/or\nget more active. Ask your GP, or another health professional, for advice about losing weight.\nDo you know"
+            }
+          ]
+        },
+        {
+          "id": "leave-04",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.63,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 0.508,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.63,
+              "hit": true,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5896,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.549,
+              "hit": false,
+              "text": "a day do not need any additional vitamin D as formula is already fortified.\nFor more information, talk to your GP or another health professional, or see:\nhttp://www.nhs.uk/Conditions/vitamins-minerals"
+            }
+          ]
+        },
+        {
+          "id": "leave-05",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6135,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 0.49,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6135,
+              "hit": true,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5929,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.5187,
+              "hit": false,
+              "text": "9\nIf you’re overweight, then you may need to eat less, improve the balance of your diet and/or\nget more active. Ask your GP, or another health professional, for advice about losing weight.\nDo you know"
+            }
+          ]
+        },
+        {
+          "id": "leave-06",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6562,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 3.367,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6562,
+              "hit": true,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6159,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 2,
+              "score": 0.5395,
+              "hit": false,
+              "text": "2\nIs the Eatwell Guide for me?\nThe Eatwell Guide applies to most people regardless of weight, dietary restrictions/\npreferences or ethnic origin.\nHowever, it doesn’t apply to children under 2 because "
+            }
+          ]
+        },
+        {
+          "id": "diabetes-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6919,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.518,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6919,
+              "hit": true,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n2\nRemember - You can make a big difference to your diabetes and health.\nLearn more and take co"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.658,
+              "hit": false,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n4\n• Choose high‑fibre, low‑glycaemic‑index sources of carbohydrate in the\ndiet, such as vegeta"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6562,
+              "hit": false,
+              "text": "Aim to shift your energy balance by reducing your calorie intake and\nincreasing your physical activity. Food and drink provide calories or “fuel” for\nthe body. If you take in less fuel than your body "
+            }
+          ]
+        },
+        {
+          "id": "diabetes-02",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6531,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.552,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6531,
+              "hit": true,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n2\nRemember - You can make a big difference to your diabetes and health.\nLearn more and take co"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.6079,
+              "hit": false,
+              "text": "Take medication\nTake medication if prescribed by your doctor – but remember that changes to\nyour diet and activity levels will help you to control your blood glucose\nalongside the medication.\n\nUseful "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.5961,
+              "hit": false,
+              "text": "Aim to shift your energy balance by reducing your calorie intake and\nincreasing your physical activity. Food and drink provide calories or “fuel” for\nthe body. If you take in less fuel than your body "
+            }
+          ]
+        },
+        {
+          "id": "diabetes-03",
+          "answerable": true,
+          "rank": 4,
+          "top_score": 0.6992,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.476,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 3,
+              "score": 0.6992,
+              "hit": false,
+              "text": "into the pink segment; the onion, carrots and peas would fit into the green segment.\nLet’s take a closer look at each of the food groups...\nA closer look at\n\nFruit and vegetables\nMost people know we s"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 10,
+              "score": 0.6898,
+              "hit": false,
+              "text": "10\nFood group\nWhat’s included?\nHow much?\nTips\nFruit and\nvegetables\nAll fruit and vegetables including fresh, frozen, canned, dried and juiced varieties.\nPotatoes do not count as they are considered a "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 2,
+              "score": 0.6848,
+              "hit": false,
+              "text": "2\nIs the Eatwell Guide for me?\nThe Eatwell Guide applies to most people regardless of weight, dietary restrictions/\npreferences or ethnic origin.\nHowever, it doesn’t apply to children under 2 because "
+            }
+          ]
+        },
+        {
+          "id": "diabetes-04",
+          "answerable": true,
+          "rank": 5,
+          "top_score": 0.7069,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.499,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.7069,
+              "hit": false,
+              "text": "soft drinks for diet, sugar-free or no added sugar varieties to reduce\nyour sugar intake in a simple step.\nAlcohol also contains lots of calories (kcal) and should be limited to\nno more than 14 units "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.6376,
+              "hit": false,
+              "text": "6\nFoods high in fat, salt and sugars\nThis includes products such as chocolate, cakes, biscuits, full-sugar soft drinks,\nbutter and ice-cream. These foods are not needed in the diet and so,\nif included"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6363,
+              "hit": false,
+              "text": "Aim to shift your energy balance by reducing your calorie intake and\nincreasing your physical activity. Food and drink provide calories or “fuel” for\nthe body. If you take in less fuel than your body "
+            }
+          ]
+        },
+        {
+          "id": "diabetes-05",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7718,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.62,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.7718,
+              "hit": true,
+              "text": "People with diabetes are at a higher risk of cardio-vascular disease.\nTherefore, it is even more important to follow a healthy, balanced diet, such\nas the Mediterranean diet or similar.\n\nListeriosis r"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 4,
+              "score": 0.6722,
+              "hit": false,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n4\n• Choose high‑fibre, low‑glycaemic‑index sources of carbohydrate in the\ndiet, such as vegeta"
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 3,
+              "score": 0.6617,
+              "hit": false,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n3\n\n• Choose lean sources of protein such as chicken, fish, eggs, pulses.\nAvoid adding extra fa"
+            }
+          ]
+        },
+        {
+          "id": "diabetes-06",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7109,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.493,
+          "top_chunks": [
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.7109,
+              "hit": true,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n5\nIncrease activity\nIncreasing activity burns more calories, helps reduce your blood glucose, "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 5,
+              "score": 0.6474,
+              "hit": false,
+              "text": "Take medication\nTake medication if prescribed by your doctor – but remember that changes to\nyour diet and activity levels will help you to control your blood glucose\nalongside the medication.\n\nUseful "
+            },
+            {
+              "filename": "diabetes_how_to_take_control.pdf",
+              "page": 2,
+              "score": 0.6303,
+              "hit": false,
+              "text": "Patient Information\n\nDiabetes - How to take control                                      www.uhcw.nhs.uk\n\n2\nRemember - You can make a big difference to your diabetes and health.\nLearn more and take co"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-01",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7171,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.526,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.7171,
+              "hit": true,
+              "text": "7\nRemember that the portion sizes used on the\nlabel are suggestions and may not be the\nsame as you actually consume. For example,\nsome foods and drinks commonly consumed\nas single servings have the nu"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.6962,
+              "hit": false,
+              "text": "therefore it is important to get most of our fat from unsaturated oils.\nChoosing lower fat spreads, as opposed to butter, is a good way to\nreduce your saturated fat intake.\nRemember that all types of "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 7,
+              "score": 0.6766,
+              "hit": false,
+              "text": "saturated fat, including fatty cuts of meat, sausages, butter, cream, cheese, chocolate,\npastries, cakes and biscuits. You don’t need to stop eating these foods altogether, but eating\ntoo much of thes"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-02",
+          "answerable": true,
+          "rank": 2,
+          "top_score": 0.6943,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.509,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6943,
+              "hit": false,
+              "text": "in everyday foods such as bread, breakfast cereal, pasta sauce and soup. Try replacing salt\nwith pepper, herbs and spices to add flavour to your favourite dishes. Checking the label and\nchoosing foods"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6622,
+              "hit": true,
+              "text": "8\nSugary drinks have no place in a child’s daily diet but account for a surprisingly large proportion\nof the daily sugar intake of both children and adults. Almost a third of the free sugars consumed\n"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 1,
+              "score": 0.6482,
+              "hit": false,
+              "text": "Protecting and improving the nation’s health\nCri\nsp\ns\nRaisins\nFr\noze\nn\npe\nas\nLentils\nSoya\ndrink\nCous\nCous\npasta\nWhole\nwheat\nBa\nge\nls\nP\nor\nrid\ng\ne\nL\no\nw\nfa\nt\ns\no\nft\n c\nhe\nes\ne\nTu\nna\nPla\nin\nnu\nts\npe\nas\n"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-03",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.7599,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.496,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.7599,
+              "hit": true,
+              "text": "the skin and from a healthy, balanced diet. However, during the autumn and winter we need\nto rely on dietary sources of vitamin D. Since it is difficult for people to get enough vitamin D\nfrom food al"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.661,
+              "hit": false,
+              "text": "a day do not need any additional vitamin D as formula is already fortified.\nFor more information, talk to your GP or another health professional, or see:\nhttp://www.nhs.uk/Conditions/vitamins-minerals"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6545,
+              "hit": false,
+              "text": "9\nIf you’re overweight, then you may need to eat less, improve the balance of your diet and/or\nget more active. Ask your GP, or another health professional, for advice about losing weight.\nDo you know"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-04",
+          "answerable": true,
+          "rank": 1,
+          "top_score": 0.6461,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.487,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.6461,
+              "hit": true,
+              "text": "soft drinks for diet, sugar-free or no added sugar varieties to reduce\nyour sugar intake in a simple step.\nAlcohol also contains lots of calories (kcal) and should be limited to\nno more than 14 units "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 1,
+              "score": 0.6413,
+              "hit": false,
+              "text": "Eatwell Guide\n2000kcal        2500kcal = ALL FOOD + ALL DRINKS\nPer day\nEat less often and\nin small amounts\nChoo\nse lo\nwer f\nat a\nnd\n low\ner su\ngar o\nption\ns\nEa\nt m\nore\n be\nans\n and\n pul\nses,\n2 por\ntio"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 11,
+              "score": 0.6314,
+              "hit": false,
+              "text": "Per day\nEat less often and\nin small amounts\nChoo\nse lo\nwer f\nat a\nnd\n low\ner su\ngar o\nption\ns\nEa\nt m\nore\n be\nans\n and\n pul\nses,\n2 por\ntions\n of su\nstaina\nbly\nso\nurc\ned\n ﬁs\nh p\ner w\neek,\n one\n of w\nhic"
+            }
+          ]
+        },
+        {
+          "id": "eatwell-05",
+          "answerable": true,
+          "rank": 2,
+          "top_score": 0.706,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.501,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 10,
+              "score": 0.706,
+              "hit": false,
+              "text": "or canned), including:\nhaddock, plaice,\npollock, coley, cod,\ntuna\n• oily fish (fresh, frozen\nor canned), including:\nmackerel, sardines,\ntrout, salmon,\nwhitebait\n• shellfish (fresh, frozen\nor canned), "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 5,
+              "score": 0.6972,
+              "hit": true,
+              "text": "more guidance on sustainably sourced fish.\nSome types of meat are high in fat, particularly saturated fat. So when you’re\nbuying meat, remember that the type of cut or meat product you choose, and\nhow"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 11,
+              "score": 0.6958,
+              "hit": false,
+              "text": "Per day\nEat less often and\nin small amounts\nChoo\nse lo\nwer f\nat a\nnd\n low\ner su\ngar o\nption\ns\nEa\nt m\nore\n be\nans\n and\n pul\nses,\n2 por\ntions\n of su\nstaina\nbly\nso\nurc\ned\n ﬁs\nh p\ner w\neek,\n one\n of w\nhic"
+            }
+          ]
+        },
+        {
+          "id": "none-01",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.6506,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 0.493,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6506,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.6436,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 12,
+              "score": 0.4945,
+              "hit": false,
+              "text": "How can I find out more about healthy eating?\nTo find out more:\n• get general advice from www.nhs.uk/Livewell/Goodfood/Pages/Goodfoodhome.aspx\n• contact your local community dietitian, you can do this"
+            }
+          ]
+        },
+        {
+          "id": "none-02",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.569,
+          "evidence_chunks": 2,
+          "retrieval_seconds": 0.505,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.569,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5529,
+              "hit": false,
+              "text": "Brightline Systems - Employee Leave Policy\nVersion 2.0, effective 1 July 2026\nSample document for a fictional company. It contains no real employee data.\n\nThis policy explains the types of leave avail"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 12,
+              "score": 0.524,
+              "hit": false,
+              "text": "How can I find out more about healthy eating?\nTo find out more:\n• get general advice from www.nhs.uk/Livewell/Goodfood/Pages/Goodfoodhome.aspx\n• contact your local community dietitian, you can do this"
+            }
+          ]
+        },
+        {
+          "id": "none-03",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.6164,
+          "evidence_chunks": 5,
+          "retrieval_seconds": 0.514,
+          "top_chunks": [
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 9,
+              "score": 0.6164,
+              "hit": false,
+              "text": "9\nIf you’re overweight, then you may need to eat less, improve the balance of your diet and/or\nget more active. Ask your GP, or another health professional, for advice about losing weight.\nDo you know"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 1,
+              "score": 0.606,
+              "hit": false,
+              "text": "Eatwell Guide\n2000kcal        2500kcal = ALL FOOD + ALL DRINKS\nPer day\nEat less often and\nin small amounts\nChoo\nse lo\nwer f\nat a\nnd\n low\ner su\ngar o\nption\ns\nEa\nt m\nore\n be\nans\n and\n pul\nses,\n2 por\ntio"
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.6038,
+              "hit": false,
+              "text": "in everyday foods such as bread, breakfast cereal, pasta sauce and soup. Try replacing salt\nwith pepper, herbs and spices to add flavour to your favourite dishes. Checking the label and\nchoosing foods"
+            }
+          ]
+        },
+        {
+          "id": "none-04",
+          "answerable": false,
+          "rank": null,
+          "top_score": 0.5038,
+          "evidence_chunks": 0,
+          "retrieval_seconds": 0.78,
+          "top_chunks": [
+            {
+              "filename": "leave_policy_v2.txt",
+              "page": null,
+              "score": 0.5038,
+              "hit": false,
+              "text": "3. Parental leave\nThe primary caregiver of a new child is entitled to 16 weeks of paid parental\nleave. The secondary caregiver is entitled to 4 weeks of paid parental leave.\nParental leave must start "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 6,
+              "score": 0.4931,
+              "hit": false,
+              "text": "soft drinks for diet, sugar-free or no added sugar varieties to reduce\nyour sugar intake in a simple step.\nAlcohol also contains lots of calories (kcal) and should be limited to\nno more than 14 units "
+            },
+            {
+              "filename": "eatwell_guide_2018.pdf",
+              "page": 8,
+              "score": 0.4926,
+              "hit": false,
+              "text": "in everyday foods such as bread, breakfast cereal, pasta sauce and soup. Try replacing salt\nwith pepper, herbs and spices to add flavour to your favourite dishes. Checking the label and\nchoosing foods"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

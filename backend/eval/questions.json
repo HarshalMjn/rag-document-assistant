@@ -1,0 +1,178 @@
+{
+  "description": "Evaluation questions over the files in samples/. A retrieved chunk is a hit when it contains `evidence` (whitespace-normalised, case-insensitive) and, for PDFs, comes from one of `pages`. `answer_facts` must all appear in the generated answer; `a|b` accepts either form. Questions with `source: null` are not answered by any document and must get the insufficient-evidence reply.",
+  "documents": [
+    "leave_policy_v2.txt",
+    "diabetes_how_to_take_control.pdf",
+    "eatwell_guide_2018.pdf"
+  ],
+  "questions": [
+    {
+      "id": "leave-01",
+      "question": "How many days of paid annual leave does a full-time employee get?",
+      "source": "leave_policy_v2.txt",
+      "pages": null,
+      "evidence": "entitled to 20 days of paid annual leave",
+      "answer_facts": ["20"]
+    },
+    {
+      "id": "leave-02",
+      "question": "How many unused holiday days can I move into next year, and by when do I have to use them?",
+      "source": "leave_policy_v2.txt",
+      "pages": null,
+      "evidence": "Up to 5 unused days can be carried over into the next year",
+      "answer_facts": ["5", "31 March"]
+    },
+    {
+      "id": "leave-03",
+      "question": "When do I need a doctor's note for being off sick?",
+      "source": "leave_policy_v2.txt",
+      "pages": null,
+      "evidence": "A medical certificate is required for any absence longer than 3 consecutive working days",
+      "answer_facts": ["3|three"]
+    },
+    {
+      "id": "leave-04",
+      "question": "How long is the paid leave for the main carer of a newborn baby?",
+      "source": "leave_policy_v2.txt",
+      "pages": null,
+      "evidence": "primary caregiver of a new child is entitled to 16 weeks",
+      "answer_facts": ["16"]
+    },
+    {
+      "id": "leave-05",
+      "question": "What do I get if I am asked to work on a public holiday?",
+      "source": "leave_policy_v2.txt",
+      "pages": null,
+      "evidence": "receive a replacement day off within the following 30 days",
+      "answer_facts": ["replacement day", "30"]
+    },
+    {
+      "id": "leave-06",
+      "question": "How many days a week am I allowed to work from home?",
+      "source": "leave_policy_v2.txt",
+      "pages": null,
+      "evidence": "work remotely for up to 2 days per week",
+      "answer_facts": ["2"]
+    },
+    {
+      "id": "diabetes-01",
+      "question": "How much weight do I need to lose to noticeably improve my blood glucose?",
+      "source": "diabetes_how_to_take_control.pdf",
+      "pages": [2],
+      "evidence": "Losing even 5-10% of your body weight",
+      "answer_facts": ["5", "10"]
+    },
+    {
+      "id": "diabetes-02",
+      "question": "Can type 2 diabetes go into remission, and how much weight loss does that take?",
+      "source": "diabetes_how_to_take_control.pdf",
+      "pages": [2],
+      "evidence": "than 15 kg of their body weight can put their type 2 diabetes into remission",
+      "answer_facts": ["15"]
+    },
+    {
+      "id": "diabetes-03",
+      "question": "How much of my plate should be vegetables or salad?",
+      "source": "diabetes_how_to_take_control.pdf",
+      "pages": [2],
+      "evidence": "Aim for ½ of your plate to be vegetables or salad",
+      "answer_facts": ["half|½|1/2"]
+    },
+    {
+      "id": "diabetes-04",
+      "question": "How many calories are in a pint of beer or a glass of wine?",
+      "source": "diabetes_how_to_take_control.pdf",
+      "pages": [3],
+      "evidence": "about 170-250 calories",
+      "answer_facts": ["170", "250"]
+    },
+    {
+      "id": "diabetes-05",
+      "question": "Why should people with diabetes avoid smoked salmon?",
+      "source": "diabetes_how_to_take_control.pdf",
+      "pages": [4],
+      "evidence": "smoked salmon or gravlax due to an increased risk from listeriosis",
+      "answer_facts": ["listeria"]
+    },
+    {
+      "id": "diabetes-06",
+      "question": "How much exercise per week is recommended for someone with type 2 diabetes?",
+      "source": "diabetes_how_to_take_control.pdf",
+      "pages": [5],
+      "evidence": "150 minutes of moderate intensity activity over a week",
+      "answer_facts": ["150", "75"]
+    },
+    {
+      "id": "eatwell-01",
+      "question": "What is the most saturated fat an average woman should eat in a day?",
+      "source": "eatwell_guide_2018.pdf",
+      "pages": [7],
+      "evidence": "The average woman should have no more than 20g saturated fat a day",
+      "answer_facts": ["20"]
+    },
+    {
+      "id": "eatwell-02",
+      "question": "What is the maximum amount of salt an adult should eat per day?",
+      "source": "eatwell_guide_2018.pdf",
+      "pages": [8],
+      "evidence": "Adults should eat no more than 6g of salt a day",
+      "answer_facts": ["6"]
+    },
+    {
+      "id": "eatwell-03",
+      "question": "Should I take vitamin D in winter, and how much?",
+      "source": "eatwell_guide_2018.pdf",
+      "pages": [9],
+      "evidence": "daily supplement containing 10 micrograms of vitamin D during autumn and winter",
+      "answer_facts": ["10"]
+    },
+    {
+      "id": "eatwell-04",
+      "question": "What is the weekly alcohol limit for men and women?",
+      "source": "eatwell_guide_2018.pdf",
+      "pages": [6],
+      "evidence": "no more than 14 units per week",
+      "answer_facts": ["14"]
+    },
+    {
+      "id": "eatwell-05",
+      "question": "I eat a lot of red meat. How much should I cut down to each day?",
+      "source": "eatwell_guide_2018.pdf",
+      "pages": [5],
+      "evidence": "try to cut down to no more than 70g per day",
+      "answer_facts": ["70"]
+    },
+    {
+      "id": "none-01",
+      "question": "What is the bereavement leave policy?",
+      "source": null,
+      "pages": null,
+      "evidence": null,
+      "answer_facts": []
+    },
+    {
+      "id": "none-02",
+      "question": "Does the company offer dental insurance to employees?",
+      "source": null,
+      "pages": null,
+      "evidence": null,
+      "answer_facts": []
+    },
+    {
+      "id": "none-03",
+      "question": "What is the recommended daily iron intake for adults?",
+      "source": null,
+      "pages": null,
+      "evidence": null,
+      "answer_facts": []
+    },
+    {
+      "id": "none-04",
+      "question": "What is the capital city of France?",
+      "source": null,
+      "pages": null,
+      "evidence": null,
+      "answer_facts": []
+    }
+  ]
+}
