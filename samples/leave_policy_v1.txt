@@ -1,0 +1,41 @@
+Brightline Systems - Employee Leave Policy
+Version 1.0, effective 1 January 2026
+Sample document for a fictional company. It contains no real employee data.
+
+This policy explains the types of leave available to all full-time employees of
+Brightline Systems. Part-time employees receive leave in proportion to their
+contracted hours.
+
+1. Annual leave
+Every full-time employee is entitled to 15 days of paid annual leave per calendar
+year. Annual leave builds up at 1.25 days for each full month worked. Requests
+must be submitted in the HR portal at least 10 working days in advance and need
+approval from the employee's line manager. Up to 5 unused days can be carried
+over into the next year; carried-over days must be used by 31 March or they are
+lost. Unused annual leave is not paid out in cash, except when employment ends.
+
+2. Sick leave
+Employees receive 10 days of paid sick leave per calendar year. Sick leave does
+not carry over. An employee who is ill must tell their line manager before 10:00
+on the first day of absence. A medical certificate is required for any absence
+longer than 3 consecutive working days.
+
+3. Parental leave
+The primary caregiver of a new child is entitled to 16 weeks of paid parental
+leave. The secondary caregiver is entitled to 4 weeks of paid parental leave.
+Parental leave must start within 12 months of the birth or adoption, and the
+employee should give HR at least 8 weeks' notice.
+
+4. Public holidays
+Brightline Systems observes 10 public holidays each year. The list is published
+in the HR portal every December. Employees who are asked to work on a public
+holiday receive a replacement day off within the following 30 days.
+
+5. Remote work days
+Employees may work remotely for up to 2 days per week, agreed in advance with
+their line manager. Remote work days are not a type of leave and do not reduce
+annual leave. The office security pass must be returned when an employee leaves
+the company.
+
+6. Questions
+Questions about this policy should be sent to hr@brightline.example.
