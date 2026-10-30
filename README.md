@@ -15,29 +15,53 @@ Built with FastAPI, MySQL, Qdrant, Gemini embeddings, a Groq-hosted LLM and a sm
 
 ## Contents
 
-1. [Quick start](#quick-start)
-2. [Environment variables](#environment-variables)
-3. [Using the app](#using-the-app)
-4. [API reference](#api-reference)
-5. [Architecture](#architecture)
-6. [Design decisions](#design-decisions)
-7. [Tests](#tests)
-8. [Evaluation](#evaluation)
-9. [Project structure](#project-structure)
-10. [Limitations and what is not implemented](#limitations-and-what-is-not-implemented)
+1. [Requirements](#requirements)
+2. [Quick start](#quick-start)
+3. [Environment variables](#environment-variables)
+4. [Using the app](#using-the-app)
+5. [API reference](#api-reference)
+6. [Architecture](#architecture)
+7. [Design decisions](#design-decisions)
+8. [Tests](#tests)
+9. [Evaluation](#evaluation)
+10. [Project structure](#project-structure)
+11. [Limitations and what is not implemented](#limitations-and-what-is-not-implemented)
+
+## Requirements
+
+Everything runs in Docker, so Python, Node and MySQL do not need to be installed locally.
+
+| Need | Why |
+|---|---|
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine 24+ with Compose v2 (`docker compose version`) | Runs all four services |
+| A [Gemini API key](https://aistudio.google.com/apikey) (free tier) | Embeddings |
+| A [Groq API key](https://console.groq.com/keys) (free tier) | Answers and follow-up query rewriting |
+| Free ports `5173`, `8000`, `6333`, `6334`, `3306` | UI, API, Qdrant (HTTP and gRPC), MySQL |
+| About 2 GB of disk and an internet connection on the first run | Docker images and the frontend's `npm install` |
 
 ## Quick start
 
-Requirements: Docker with Docker Compose, a [Gemini API key](https://aistudio.google.com/apikey)
-(embeddings) and a [Groq API key](https://console.groq.com/keys) (answers). Both have free
-tiers.
+1. Clone the repository.
 
-```bash
-cp .env.example .env
-# Edit .env: set DB_USERNAME, DB_PASSWORD, GEMINI_API_KEY and CHAT_LLM_API_KEY.
+   ```bash
+   git clone https://github.com/HarshalMjn/rag-document-assistant.git
+   cd rag-document-assistant
+   ```
 
-docker compose up -d --build
-```
+2. Create `.env` from the template and fill in the four values that have no default:
+   `DB_USERNAME`, `DB_PASSWORD`, `GEMINI_API_KEY` and `CHAT_LLM_API_KEY` (the Groq key).
+   The database user is created by the MySQL container on first start, so any username and
+   password work.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Build and start everything.
+
+   ```bash
+   docker compose up -d --build
+   ```
 
 | What | Where |
 |---|---|
@@ -48,6 +72,53 @@ docker compose up -d --build
 Database migrations (`alembic upgrade head`) run automatically each time the API starts,
 and the Qdrant collection is created on first start. Sample documents to try are in
 [`samples/`](samples).
+
+### Check that it started
+
+The first start takes a few minutes: the API image is built, the API waits for MySQL's
+healthcheck before starting, and the frontend container runs `npm install`. Later starts take
+seconds.
+
+1. All four containers should be running, with `mysql` marked healthy:
+
+   ```bash
+   docker compose ps
+   ```
+
+   ```text
+   SERVICE       STATUS
+   fastapi_app   Up
+   frontend      Up
+   mysql         Up (healthy)
+   qdrant        Up
+   ```
+
+2. The health check should report both stores as reachable:
+
+   ```bash
+   curl http://localhost:8000/health
+   # 200 {"data": {"status": "ok", "qdrant": "ok", "mysql": "ok"}}
+   ```
+
+3. Open http://localhost:5173 and upload a file from [`samples/`](samples). Its status should
+   change to `indexed`. That confirms the Gemini key works. Asking a question confirms the
+   Groq key.
+
+### Troubleshooting and stopping
+
+| Problem | What to do |
+|---|---|
+| `port is already allocated` | Another program uses that port (often a local MySQL on `3306`). Stop it, or change the left side of the port mapping in `docker-compose.yml`, for example `"3307:3306"`. |
+| `/health` returns `503` with `"status": "degraded"` | The failing store shows `"error"`. Check `docker compose logs mysql` or `docker compose logs qdrant`. |
+| The API container keeps restarting | Run `docker compose logs fastapi_app`. The usual cause is a missing value in `.env`. |
+| A document ends up `failed` or a question returns an error | The reason is shown in the UI. An invalid or rate-limited Gemini or Groq key is the usual cause. |
+| UI at `:5173` does not load yet | `npm install` is still running. Follow it with `docker compose logs -f frontend`. |
+| `DB_USERNAME` or `DB_PASSWORD` changed after the first start | MySQL only creates the user once. Reset the data with `docker compose down -v`. |
+
+```bash
+docker compose down      # stop the containers and keep the data
+docker compose down -v   # stop them and delete all documents, chats and vectors
+```
 
 ## Environment variables
 
