@@ -91,7 +91,8 @@ Everything runs in Docker, so Python, Node and MySQL do not need to be installed
 
 Database migrations (`alembic upgrade head`) run automatically each time the API starts,
 and the Qdrant collection is created on first start. Sample documents to try are in
-[`samples/`](samples).
+[`samples/`](samples), and [`samples/QUESTIONS.md`](samples/QUESTIONS.md) lists questions to
+ask about them with the expected answers.
 
 ### Check that it started
 
