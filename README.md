@@ -84,7 +84,9 @@ Everything runs in Docker, so Python, Node and MySQL do not need to be installed
 | What | Where |
 |---|---|
 | UI | http://localhost:5173 |
-| API and interactive docs (Swagger) | http://localhost:8000/docs |
+| API docs (Swagger UI, try requests in the browser) | http://localhost:8000/docs |
+| API docs (ReDoc, read-only reference) | http://localhost:8000/redoc |
+| Qdrant dashboard (browse collections and stored chunks) | http://localhost:6333/dashboard |
 | Health check | http://localhost:8000/health |
 
 Database migrations (`alembic upgrade head`) run automatically each time the API starts,
@@ -235,7 +237,9 @@ that."*
 ## API reference
 
 Successful responses are wrapped as `{"data": ...}`. Errors use FastAPI's
-`{"detail": "..."}`. Full schemas are at `/docs`.
+`{"detail": "..."}`. Full schemas are at [`/docs`](http://localhost:8000/docs) (Swagger UI,
+where you can send requests) and [`/redoc`](http://localhost:8000/redoc) (ReDoc, a read-only
+reference).
 
 | Method and path | Purpose | Status codes |
 |---|---|---|
