@@ -8,10 +8,29 @@ When the documents don't contain the answer, the assistant says so instead of gu
 
 Built with FastAPI, MySQL, Qdrant, Gemini embeddings, a Groq-hosted LLM and a small React UI.
 
+- Demo video (3 min 55 s): [watch on Google Drive](https://drive.google.com/file/d/18zG_CqYEoMW2W6xghQXALHTXnl2aSMIk/view?usp=sharing)
+  (upload, answers with citations, follow-up using history, document update, deletion,
+  bad inputs; timestamps below)
 - Evaluation report: [`backend/eval/EVALUATION.md`](backend/eval/EVALUATION.md)
   (Recall@K across three chunking configs, answer and citation review)
 - Automated tests: [Tests](#tests) (64 tests with fake providers and no API keys, plus 7
   opt-in live tests)
+
+**Demo timestamps**
+
+| Time | What it shows |
+|---|---|
+| 0:00 | Upload `leave_policy_v1.txt`, `eatwell_guide_2018.pdf` and `diabetes_how_to_take_control.pdf`. Each one becomes `indexed` with its version and chunk count. |
+| 0:45 | *"How many days of annual leave do I get?"* → 15 days, with a citation to `leave_policy_v1.txt` |
+| 1:00 | Follow-up *"Can I carry some of them over?"* → rewritten to *"Can I carry over annual leave days?"*. Up to 5 days, used by 31 March. |
+| 1:15 | *"What is the bereavement leave policy?"* → insufficient information, no citations |
+| 1:25 | Trace page: history window, query rewrite, retrieved chunks with scores and which were cited |
+| 2:05 | Replace `leave_policy_v1.txt` with `leave_policy_v2.txt`: same `document_id`, v1 → v2, each step of the safe update |
+| 2:20 | Same question again → 20 days, citing v2 only |
+| 2:45 | Delete the leave policy → 4 chunks removed from Qdrant |
+| 2:55 | New conversation, same question → insufficient information (deleted content is not retrieved) |
+| 3:10 | Bad inputs: `empty.txt` and `not_a_pdf.pdf` are rejected, `scanned_page.pdf` fails with "OCR is not supported" |
+| 3:45 | Delete the failed scanned document |
 
 ## Contents
 
