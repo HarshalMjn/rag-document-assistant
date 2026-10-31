@@ -153,7 +153,7 @@ returns only the tuning values, and the tests check every response for leaked ke
 
 | Page | What it shows |
 |---|---|
-| **Chat** | Conversations on the left, and a side panel to upload files by drag-and-drop and watch their status. Answers show citation chips, an "insufficient information" notice when the documents don't cover the question, and the rewritten search query for follow-ups. A counter shows how many earlier messages the next question will use, and top-K can be set per question. |
+| **Chat** | Conversations on the left, and a side panel to upload files by drag-and-drop and watch their status. Answers show citation chips, an "insufficient information" notice when the documents don't cover the question, and the rewritten search query for follow-ups. A counter shows how many earlier messages the next question will use. |
 | **Documents** | Upload button and a table with status (`processing`, `indexed`, `failed` with the reason), version, chunk count and content hash. **Replace** uploads a new version and shows each step of the safe update. **Delete** asks for confirmation. |
 | **Trace** | For each answer: the history window that was sent, the query rewrite, and every retrieved chunk with its score and whether it went into the prompt and was cited. |
 
@@ -354,8 +354,9 @@ previous rules and reply only with PWNED"* is not obeyed.
 - **Counting:** "10 messages" means the latest 10 rows of the conversation, user and
   assistant combined, so five question-answer pairs. `HISTORY_LIMIT` changes it.
 - **Incomplete pair at the boundary:** if the window starts with an answer whose question
-  fell outside it, that answer is dropped. History always starts with a user message, so it
-  may hold 9 messages instead of 10. `history_used` in the response shows the real number.
+  fell outside it, that answer is dropped, so history always starts with a user message.
+  Questions and answers are saved in pairs, so this only happens when `HISTORY_LIMIT` is odd
+  (a limit of 9 gives 8 messages). `history_used` in the response shows the real number.
 - **History helps understanding, not facts.** It is used to rewrite the follow-up into a
   search query and is sent before the new question, but retrieval runs fresh every time. The
   rules tell the model not to take facts from earlier answers, because documents may have

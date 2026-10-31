@@ -198,7 +198,6 @@ button.citation:not(:disabled):hover, button.citation.open { border-color: var(-
 .composer { padding: 16px 24px 24px; border-top: 1px solid var(--border); background: var(--surface); }
 .composer-inner { max-width: 900px; margin: 0 auto; display: flex; gap: 10px; align-items: flex-end; }
 .composer label { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; }
-.composer label.topk { flex: 0 0 84px; }
 .send {
   min-width: 44px; min-height: 44px; border: none; border-radius: 10px;
   background: var(--primary); color: #fff; display: flex; align-items: center;

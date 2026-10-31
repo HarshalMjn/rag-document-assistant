@@ -204,6 +204,6 @@ export const api = {
   createConversation: () => request<{ id: number }>("/conversations", json("POST")),
   history: (id: number) =>
     request<{ conversation_id: number; messages: Message[] }>(`/chat/${id}/history`),
-  ask: (id: number, question: string, topK?: number) =>
-    request<ChatResponse>(`/chat/${id}`, json("POST", { question, top_k: topK })),
+  ask: (id: number, question: string) =>
+    request<ChatResponse>(`/chat/${id}`, json("POST", { question })),
 };
